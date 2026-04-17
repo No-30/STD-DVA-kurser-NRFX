@@ -25,12 +25,12 @@ extern char string[STRING_LENGTH];
 
 int read_int();
 void uarte_write();
-void readString();
+void readString(char charArr[], int* length);
 void toggleLED();
 void initSystick();
 void initRTC();
 void initUART();
-void confButtons(int numberOfButtons);
-void confLEDs(int numberOfLEDs, int state);
+void confButtons();
+void confLEDs();
 
 #endif //↑ ↑ ↓ ↓ ← → ← → B A (Start)

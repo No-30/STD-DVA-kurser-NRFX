@@ -10,11 +10,25 @@
 #include <nrf_gpio.h>
 
 extern nrfx_uarte_t instance = NRFX_UARTE_INSTANCE(0);
+extern const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
 
 int read_int()
 {
     char charArr[STRING_LENGTH];
     int length = STRING_LENGTH;
+
+    readString(charArr, length);
+
+    return atoi(charArr);
+}
+
+void uarte_write(char* data)
+{
+    nrfx_uarte_tx(&instance, data, strlen(data), 0);
+}
+
+void readString(char charArr[], int* length)
+{
     for(int i = 0; i < length; i++)
     {
         nrfx_uarte_rx (&instance, &uarteBuffer, sizeof(uarteBuffer));
@@ -28,17 +42,6 @@ int read_int()
             length = i;
         }
     }
-    return atoi(charArr);
-}
-
-void uarte_write(char* data)
-{
-    nrfx_uarte_tx(&instance, data, strlen(data), 0);
-}
-
-void readString()
-{
-
 }
 
 void toggleLED()
@@ -63,20 +66,33 @@ void initSystick()
 
 void initRTC()
 {
-
+    nrfx_rtc_config_t configc = NRFX_RTC_DEFAULT_CONFIG;
+    nrfx_err_t errc = nrfx_rtc_init(&rtc_instance, &configc, NULL);
+    nrfx_rtc_enable(&rtc_instance);
 }
 
 void initUART()
 {
-
+    const nrfx_uarte_config_t configu = NRFX_UARTE_DEFAULT_CONFIG(PIN_TXD, PIN_RXD);
+    nrfx_err_t erru = nrfx_uarte_init(&instance, &configu, NULL);
+    if (erru != 0){
+        //Här kan vi implementera felhantering, men för stunden håller vi tummarna att allt funkar
+    }
 }
 
-void confButtons(int numberOfButtons)
+void confButtons()
 {
-
+    for(int i = 0; i < BUTTON_ARR_LENGTH; i++)
+    {
+        nrf_gpio_cfg_input(ButtonArr[i], NRF_GPIO_PIN_PULLUP);
+    }
 }
 
-void confLEDs(int numberOfLEDs, int state)
+void confLEDs()
 {
-
+    for(int i = 0; i < LED_ARR_LENGTH; i++)
+    {
+        nrf_gpio_cfg_output(LEDArr[i]);
+        nrf_gpio_pin_write(LEDArr[i], LEDState[i]);
+    }
 }
