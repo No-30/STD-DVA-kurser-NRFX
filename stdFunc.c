@@ -11,6 +11,12 @@
 
 extern nrfx_uarte_t instance = NRFX_UARTE_INSTANCE(0);
 extern const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
+extern int LEDArr[LED_ARR_LENGTH] = {LED1, LED2, LED3, LED4};
+extern int ButtonArr[BUTTON_ARR_LENGTH] = {BUTTON1, BUTTON2, BUTTON3, BUTTON4};
+extern int LEDState[LED_ARR_LENGTH] = {LED_OFF, LED_OFF, LED_OFF, LED_OFF};
+extern char uarteBuffer;
+extern char sprintfBuffer[STRING_LENGTH];
+extern char string[STRING_LENGTH];
 
 int read_int()
 {
@@ -73,7 +79,7 @@ void initRTC()
 
 void initUART()
 {
-    const nrfx_uarte_config_t configu = NRFX_UARTE_DEFAULT_CONFIG(PIN_TXD, PIN_RXD);
+    const nrfx_uarte_config_t configu = NRFX_UARTE_DEFAULT_CONFIG(UART_TX, UART_RX);
     nrfx_err_t erru = nrfx_uarte_init(&instance, &configu, NULL);
     if (erru != 0){
         //Här kan vi implementera felhantering, men för stunden håller vi tummarna att allt funkar
