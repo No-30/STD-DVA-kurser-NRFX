@@ -32,5 +32,6 @@ void initRTC();
 void initUART();
 void confButtons();
 void confLEDs();
+void delay(int ms);
 
 #endif //↑ ↑ ↓ ↓ ← → ← → B A (Start)

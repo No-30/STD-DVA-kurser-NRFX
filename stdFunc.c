@@ -96,3 +96,26 @@ void confLEDs()
         nrf_gpio_pin_write(LEDArr[i], LEDState[i]);
     }
 }
+
+void delay(int time, char unit)//case för ms s
+{
+    switch (unit)
+    {
+    case 's': //second
+        time *= 1000;
+        break;
+    
+    case 't': //tenth second
+        time *= 100;
+        break;
+    
+    
+    case 'm': //millisecond
+        time *= 1;
+        break;
+    
+    default:
+        break;
+    }
+    nrfx_systick_delay_ms(time);
+}
