@@ -9,15 +9,15 @@
 #include <nrfx_systick.h>
 #include <nrf_gpio.h>
 
-extern nrfx_uarte_t instance = NRFX_UARTE_INSTANCE(0);
-extern const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
-extern int LEDArr[LED_ARR_LENGTH] = {LED1, LED2, LED3, LED4};
+nrfx_uarte_t instance = NRFX_UARTE_INSTANCE(0);
+const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
+/*extern int LEDArr[LED_ARR_LENGTH] = {LED1, LED2, LED3, LED4};
 extern int ButtonArr[BUTTON_ARR_LENGTH] = {BUTTON1, BUTTON2, BUTTON3, BUTTON4};
 extern int LEDState[LED_ARR_LENGTH] = {LED_OFF, LED_OFF, LED_OFF, LED_OFF};
-extern char uarteBuffer;
-extern char sprintfBuffer[STRING_LENGTH];
-extern char string[STRING_LENGTH];
-extern int rtcTime = 0;
+extern char uarteBuffer = NULL;
+extern char sprintfBuffer[STRING_LENGTH] = NULL;
+extern char string[STRING_LENGTH] = NULL;
+extern int rtcTime = 0;*/
 
 int read_int()
 {

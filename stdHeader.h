@@ -16,12 +16,13 @@
 #define LED_OFF 1
 #define STRING_LENGTH 100
 
-/*extern int LEDArr[LED_ARR_LENGTH] = {LED1, LED2, LED3, LED4};
-extern int ButtonArr[BUTTON_ARR_LENGTH] = {BUTTON1, BUTTON2, BUTTON3, BUTTON4};
-extern int LEDState[LED_ARR_LENGTH] = {LED_OFF, LED_OFF, LED_OFF, LED_OFF};
-extern char uarteBuffer;
-extern char sprintfBuffer[STRING_LENGTH];
-extern char string[STRING_LENGTH];*/
+int LEDArr[LED_ARR_LENGTH] = {LED1, LED2, LED3, LED4};
+int ButtonArr[BUTTON_ARR_LENGTH] = {BUTTON1, BUTTON2, BUTTON3, BUTTON4};
+int LEDState[LED_ARR_LENGTH] = {LED_OFF, LED_OFF, LED_OFF, LED_OFF};
+char uarteBuffer;
+char sprintfBuffer[STRING_LENGTH];
+char string[STRING_LENGTH];
+int rtcTime = 0;
 
 int read_int();
 void uarte_write(char* data);

@@ -65,7 +65,7 @@ void remove_last(List *list);
 void clear_list(List *list);
 
 //Skriv ut listan genom UART
-void print_list(const List list);
+//void print_list(const List list);
 
 //Returnera första datat i listan
 Data get_first_element(const List list);
