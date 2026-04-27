@@ -24,7 +24,7 @@ extern char sprintfBuffer[STRING_LENGTH];
 extern char string[STRING_LENGTH];*/
 
 int read_int();
-void uarte_write();
+void uarte_write(char* data);
 void readString(char charArr[], int* length);
 void toggleLED();
 void initSystick();
