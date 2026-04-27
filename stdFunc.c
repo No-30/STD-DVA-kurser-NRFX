@@ -17,6 +17,7 @@ extern int LEDState[LED_ARR_LENGTH] = {LED_OFF, LED_OFF, LED_OFF, LED_OFF};
 extern char uarteBuffer;
 extern char sprintfBuffer[STRING_LENGTH];
 extern char string[STRING_LENGTH];
+extern int rtcTime = 0;
 
 int read_int()
 {
@@ -75,6 +76,8 @@ void initRTC()
     nrfx_rtc_config_t configc = NRFX_RTC_DEFAULT_CONFIG;
     nrfx_err_t errc = nrfx_rtc_init(&rtc_instance, &configc, NULL);
     nrfx_rtc_enable(&rtc_instance);
+    rtcTime = nrfx_rtc_counter_get(&rtc_instance);
+    srand(rtcTime);
 }
 
 void initUART()
@@ -124,4 +127,35 @@ void delay(int time, char unit)//case för ms s
         break;
     }
     nrfx_systick_delay_ms(time);
+}
+
+void waitForButton(int button)
+{
+    int whileloop = 1;
+    while (whileloop)
+    {
+        if (!nrf_gpio_pin_read(ButtonArr[button]))
+        {
+            while (!nrf_gpio_pin_read(ButtonArr[button]))
+            {
+                nrfx_systick_delay_ms(50);
+                whileloop = 0;
+            }
+        }
+        nrfx_systick_delay_ms(50);
+    }
+}
+
+int buttonPressed()
+{
+    for(int i = 0; i < BUTTON_ARR_LENGTH; i++){
+        if(!nrf_gpio_pin_read(ButtonArr[i]))
+        {
+            while(!nrf_gpio_pin_read(ButtonArr[i]))
+            {
+                nrfx_systick_delay_ms(50);
+            }
+            return i;
+        }
+    }
 }

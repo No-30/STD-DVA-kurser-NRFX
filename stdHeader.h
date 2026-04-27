@@ -33,5 +33,7 @@ void initUART();
 void confButtons();
 void confLEDs();
 void delay(int time, char unit);
+void waitForButton(int button);
+int buttonPressed();
 
 #endif //↑ ↑ ↓ ↓ ← → ← → B A (Start)
