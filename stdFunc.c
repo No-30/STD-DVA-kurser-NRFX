@@ -11,20 +11,21 @@
 
 nrfx_uarte_t instance = NRFX_UARTE_INSTANCE(0);
 const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
-/*extern int LEDArr[LED_ARR_LENGTH] = {LED1, LED2, LED3, LED4};
-extern int ButtonArr[BUTTON_ARR_LENGTH] = {BUTTON1, BUTTON2, BUTTON3, BUTTON4};
-extern int LEDState[LED_ARR_LENGTH] = {LED_OFF, LED_OFF, LED_OFF, LED_OFF};
-extern char uarteBuffer = NULL;
-extern char sprintfBuffer[STRING_LENGTH] = NULL;
-extern char string[STRING_LENGTH] = NULL;
-extern int rtcTime = 0;*/
+int LEDArr[LED_ARR_LENGTH] = { LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN };
+int ButtonArr[BUTTON_ARR_LENGTH] = { BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN, BUTTON4_PIN };
+int LEDState[LED_ARR_LENGTH] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
+
+char uarteBuffer;
+char sprintfBuffer[STRING_LENGTH];
+char string[STRING_LENGTH];
+int rtcTime;
 
 int read_int()
 {
     char charArr[STRING_LENGTH];
     int length = STRING_LENGTH;
 
-    readString(charArr, length);
+    readString(charArr, &length);
 
     return atoi(charArr);
 }
@@ -36,7 +37,7 @@ void uarte_write(char* data)
 
 void readString(char charArr[], int* length)
 {
-    for(int i = 0; i < length; i++)
+    for(int i = 0; i < *length; i++)
     {
         nrfx_uarte_rx (&instance, &uarteBuffer, sizeof(uarteBuffer));
         if (uarteBuffer != '\r')
@@ -46,12 +47,12 @@ void readString(char charArr[], int* length)
         else
         {
             charArr[i] = '\0';
-            length = i;
+            *length = i;
         }
     }
 }
 
-void toggleLED()
+void toggleLEDFromButton()
 {
     for(int i = 0; i < LED_ARR_LENGTH; i++){
         if(!nrf_gpio_pin_read(ButtonArr[i]))
@@ -64,6 +65,12 @@ void toggleLED()
             }
         }
     }
+}
+
+void toggleLED(int led)
+{
+    LEDState[led] = (LEDState[led] + 1) % 2;
+    nrf_gpio_pin_write(LEDArr[led], LEDState[led]);
 }
 
 void initSystick()
@@ -148,14 +155,46 @@ void waitForButton(int button)
 
 int buttonPressed()
 {
-    for(int i = 0; i < BUTTON_ARR_LENGTH; i++){
-        if(!nrf_gpio_pin_read(ButtonArr[i]))
+    int whileloop = 1;
+    while (whileloop)
+    {
+        for (int i = 0; i < BUTTON_ARR_LENGTH; i++)
         {
-            while(!nrf_gpio_pin_read(ButtonArr[i]))
+            if (!nrf_gpio_pin_read(ButtonArr[i]))
             {
+                while (!nrf_gpio_pin_read(ButtonArr[i]))
+                {
+                    nrfx_systick_delay_ms(50);
+                    whileloop = 0;
+                    return i;
+                }
                 nrfx_systick_delay_ms(50);
             }
-            return i;
         }
     }
+}
+
+void initAll()
+{
+    confButtons();
+    initSystick();
+    initUART();
+    sprintf(sprintfBuffer, "\n\rPress Button 1 to start RTC\n\r");
+    uarte_write(sprintfBuffer);
+    waitForButton(BUTTON1);
+
+    initRTC();
+
+    confLEDs();
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < LED_ARR_LENGTH; j++)
+        {
+            toggleLED(j);
+            delay(75, 'm');
+        }
+    }
+
+    sprintf(sprintfBuffer, "\n\rAll initiated\n\r");
+    uarte_write(sprintfBuffer);
 }
