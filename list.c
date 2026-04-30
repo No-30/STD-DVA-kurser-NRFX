@@ -227,3 +227,35 @@ int remove_element(List *list, const Data data)
 
 	return remove_element(&(*list)->next, data);//gå vidare rekursivt
 }
+
+void switchNode(List *node)
+{
+    if (node == NULL || *node == NULL || (*node)->next == NULL)
+        return;
+
+    Node *a = *node;          // noden som ska flyttas
+    Node *b = a->next;        // noden efter
+
+    Node *prev = a->previous;
+    Node *next = b->next;
+
+    // Koppla ihop prev → b
+    if (prev != NULL)
+        prev->next = b;
+    b->previous = prev;
+
+    // Koppla ihop a → next
+    if (next != NULL)
+        next->previous = a;
+    a->next = next;
+
+    // Koppla ihop b → a
+    b->next = a;
+    a->previous = b;
+
+    // Om a var första noden måste listpekaren flyttas
+    if (prev == NULL)
+        *node = b;
+    else
+        *node = b;
+}
