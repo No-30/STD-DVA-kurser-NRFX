@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "BSTree.h"
+#include <math.h>
 
 /*Det är helt tillåtet att lägga till egna hjälpfunktioner men de befintliga funktionerna ska implementeras enligt instruktionerna*/
 
@@ -42,7 +43,11 @@ BSTree create_empty_tree(void)
 /* Returnerar 1 ifall trädet är tomt, 0 annars */
 int is_empty(const BSTree tree)
 {
-
+    if(tree == NULL)
+		return 1;
+	
+	else
+		return 0;
 }
 
 /* Sätter in 'data' sorterat i *tree */
