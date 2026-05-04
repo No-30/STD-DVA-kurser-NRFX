@@ -191,7 +191,7 @@ void initAll()
         for (int j = 0; j < LED_ARR_LENGTH; j++)
         {
             toggleLED(j);
-            delay(75, 'm');
+            delay(50, 'm');
         }
     }
 
