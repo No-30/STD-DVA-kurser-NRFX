@@ -83,8 +83,7 @@ void initRTC()
     nrfx_rtc_config_t configc = NRFX_RTC_DEFAULT_CONFIG;
     nrfx_err_t errc = nrfx_rtc_init(&rtc_instance, &configc, NULL);
     nrfx_rtc_enable(&rtc_instance);
-    rtcTime = nrfx_rtc_counter_get(&rtc_instance);
-    //srand(rtcTime);
+    //rtcTime = nrfx_rtc_counter_get(&rtc_instance);
 }
 
 void initUART()
@@ -179,12 +178,13 @@ void initAll()
     confButtons();
     initSystick();
     initUART();
-    //initRTC();
+    initRTC();
     sprintf(sprintfBuffer, "\n\rPress Button 1 to start RTC\n\r");
     uarte_write(sprintfBuffer);
     waitForButton(BUTTON1);
-    
-    //srand(rtcTime);
+
+    rtcTime = nrfx_rtc_counter_get(&rtc_instance);
+    srand(rtcTime);
 
     confLEDs();
     for (int i = 0; i < 2; i++)

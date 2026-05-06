@@ -112,10 +112,15 @@ void print_preorder(const BSTree tree)
     {
         return;
     }
-
+    sprintf(sprintfBuffer, "\n\rBesöker nod:");
+    //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
     uarte_write(sprintfBuffer);
+    sprintf(sprintfBuffer, "\n\rVänster:");
+    //uarte_write(sprintfBuffer);
     print_preorder(tree->left);
+    sprintf(sprintfBuffer, "\n\rHöger:");
+    //uarte_write(sprintfBuffer);
     print_preorder(tree->right);
 }
 
@@ -126,9 +131,15 @@ void print_inorder(const BSTree tree)
         return;
     }
 
+    sprintf(sprintfBuffer, "\n\rVänster:");
+    //uarte_write(sprintfBuffer);
     print_inorder(tree->left);
+    sprintf(sprintfBuffer, "\n\rBesöker nod:");
+    //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
     uarte_write(sprintfBuffer);
+    sprintf(sprintfBuffer, "\n\rHöger:");
+    //uarte_write(sprintfBuffer);
     print_inorder(tree->right);
 }
 
@@ -139,8 +150,14 @@ void print_postorder(const BSTree tree)
         return;
     }
 
+    sprintf(sprintfBuffer, "\n\rVänster:");
+    //uarte_write(sprintfBuffer);
     print_postorder(tree->left);
+    sprintf(sprintfBuffer, "\n\rHöger:");
+    //uarte_write(sprintfBuffer);
     print_postorder(tree->right);
+    sprintf(sprintfBuffer, "\n\rBesöker nod:");
+    //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
     uarte_write(sprintfBuffer);
 }
@@ -150,19 +167,27 @@ int find_BST(const BSTree tree, int data)
 {
     if (tree == NULL)
     {
+        //sprintf(sprintfBuffer, "\n\rtomt");
+        //uarte_write(sprintfBuffer);
         return 0;
     }
 
     if (data == tree->data)
     {
+        //sprintf(sprintfBuffer, "\n\rfinns");
+        //uarte_write(sprintfBuffer);
         return 1;
     }
 
     if (data < tree->data)
     {
+        //sprintf(sprintfBuffer, "\n\rsöker vänster");
+        //uarte_write(sprintfBuffer);
         return find_BST(tree->left, data);
     }
 
+    //sprintf(sprintfBuffer, "\n\rsöker höger");
+    //uarte_write(sprintfBuffer);
     return find_BST(tree->right, data);
 }
 
