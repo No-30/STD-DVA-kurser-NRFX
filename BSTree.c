@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "BSTree.h"
 #include <math.h>
+#include "stdHeader.h"
 
 /*Det är helt tillåtet att lägga till egna hjälpfunktioner men de befintliga funktionerna ska implementeras enligt instruktionerna*/
 
@@ -113,7 +114,8 @@ void print_preorder(const BSTree tree)
         return;
     }
 
-    printf("%d ", tree->data);
+    sprintf(sprintfBuffer, "\n\r%d", tree->data);
+    uarte_write(sprintfBuffer);
     print_preorder(tree->left);
     print_preorder(tree->right);
 }
@@ -126,7 +128,8 @@ void print_inorder(const BSTree tree)
     }
 
     print_inorder(tree->left);
-    printf("%d ", tree->data);
+    sprintf(sprintfBuffer, "\n\r%d", tree->data);
+    uarte_write(sprintfBuffer);
     print_inorder(tree->right);
 }
 
@@ -139,7 +142,8 @@ void print_postorder(const BSTree tree)
 
     print_postorder(tree->left);
     print_postorder(tree->right);
-    printf("%d ", tree->data);
+    sprintf(sprintfBuffer, "\n\r%d", tree->data);
+    uarte_write(sprintfBuffer);
 }
 
 /* Returnerar 1 om 'data' finns i tree, 0 annars */
