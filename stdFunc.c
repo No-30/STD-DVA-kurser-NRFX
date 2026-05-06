@@ -84,7 +84,7 @@ void initRTC()
     nrfx_err_t errc = nrfx_rtc_init(&rtc_instance, &configc, NULL);
     nrfx_rtc_enable(&rtc_instance);
     rtcTime = nrfx_rtc_counter_get(&rtc_instance);
-    srand(rtcTime);
+    //srand(rtcTime);
 }
 
 void initUART()
@@ -145,11 +145,11 @@ void waitForButton(int button)
         {
             while (!nrf_gpio_pin_read(ButtonArr[button]))
             {
-                nrfx_systick_delay_ms(50);
+                delay(50, 'm');
                 whileloop = 0;
             }
         }
-        nrfx_systick_delay_ms(50);
+        delay(50, 'm');
     }
 }
 
@@ -179,11 +179,12 @@ void initAll()
     confButtons();
     initSystick();
     initUART();
+    //initRTC();
     sprintf(sprintfBuffer, "\n\rPress Button 1 to start RTC\n\r");
     uarte_write(sprintfBuffer);
     waitForButton(BUTTON1);
-
-    initRTC();
+    
+    //srand(rtcTime);
 
     confLEDs();
     for (int i = 0; i < 2; i++)

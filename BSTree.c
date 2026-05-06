@@ -160,10 +160,10 @@ int find_BST(const BSTree tree, int data)
 
     if (data < tree->data)
     {
-        return find(tree->left, data);
+        return find_BST(tree->left, data);
     }
 
-    return find(tree->right, data);
+    return find_BST(tree->right, data);
 }
 
 static struct treeNode* find_min_node(BSTree tree)
@@ -215,7 +215,7 @@ void remove_element_BST(BSTree* tree, int data)
         {
             struct treeNode* successor = find_min_node(node->right);
             node->data = successor->data;
-            remove_element(&node->right, successor->data);
+            remove_element_BST(&node->right, successor->data);
         }
     }
 }
@@ -282,7 +282,7 @@ void balance_tree(BSTree* tree)
     }
 
     int* arr = write_sorted_to_array(*tree);
-    int count = number_of_nodes(*tree);
+    int count = number_of_nodes_BST(*tree);
     free_tree(tree);
     build_tree_sorted_from_array(tree, arr, count);
     free(arr);
