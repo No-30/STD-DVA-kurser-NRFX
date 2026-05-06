@@ -67,7 +67,7 @@ BSTree create_empty_tree(void)
 }
 
 /* Returnerar 1 ifall trädet är tomt, 0 annars */
-int is_empty(const BSTree tree)
+int is_empty_BST(const BSTree tree)
 {
     if (tree == NULL)
         return 1;
@@ -98,7 +98,7 @@ static void insert_sorted_helper(BSTree* tree, int data)
 }
 
 /* Sätter in 'data' sorterat i *tree */
-void insert_sorted(BSTree* tree, int data)
+void insert_sorted_BST(BSTree* tree, int data)
 {
     assert(tree != NULL);
     insert_sorted_helper(tree, data);
@@ -143,7 +143,7 @@ void print_postorder(const BSTree tree)
 }
 
 /* Returnerar 1 om 'data' finns i tree, 0 annars */
-int find(const BSTree tree, int data)
+int find_BST(const BSTree tree, int data)
 {
     if (tree == NULL)
     {
@@ -174,7 +174,7 @@ static struct treeNode* find_min_node(BSTree tree)
 }
 
 /* Tar bort 'data' från trädet om det finns */
-void remove_element(BSTree* tree, int data)
+void remove_element_BST(BSTree* tree, int data)
 {
     if (tree == NULL || *tree == NULL)
     {
@@ -183,11 +183,11 @@ void remove_element(BSTree* tree, int data)
 
     if (data < (*tree)->data)
     {
-        remove_element(&(*tree)->left, data);
+        remove_element_BST(&(*tree)->left, data);
     }
     else if (data > (*tree)->data)
     {
-        remove_element(&(*tree)->right, data);
+        remove_element_BST(&(*tree)->right, data);
     }
     else
     {
@@ -218,14 +218,14 @@ void remove_element(BSTree* tree, int data)
 }
 
 /* Returnerar hur många noder som totalt finns i trädet */
-int number_of_nodes(const BSTree tree)
+int number_of_nodes_BST(const BSTree tree)
 {
     if (tree == NULL)
     {
         return 0;
     }
 
-    return 1 + number_of_nodes(tree->left) + number_of_nodes(tree->right);
+    return 1 + number_of_nodes_BST(tree->left) + number_of_nodes_BST(tree->right);
 }
 
 /* Returnerar hur djupt trädet är */

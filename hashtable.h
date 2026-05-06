@@ -11,16 +11,16 @@ typedef struct Bucket
 } Bucket;
 
 // Nod i länkad lista
-typedef struct Node
+typedef struct Node_hash
 {
     Bucket data;
-    struct Node* next;
-} Node;
+    struct Node_hash* next;
+} Node_hash;
 
 // Hashtabell: array av pekare till listor
 typedef struct HashTable
 {
-    Node* table[TABLE_SIZE];
+    Node_hash* table[TABLE_SIZE];
 } HashTable;
 
 // Funktioner

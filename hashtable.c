@@ -38,7 +38,7 @@ void insert(HashTable* ht, int key, const char* value)
     }
 
     int index = hash(key);
-    Node* current = ht->table[index];
+    Node_hash* current = ht->table[index];
 
     while (current != NULL)
     {
@@ -51,7 +51,7 @@ void insert(HashTable* ht, int key, const char* value)
         current = current->next;
     }
 
-    Node* newNode = malloc(sizeof(Node));
+    Node_hash* newNode = malloc(sizeof(Node_hash));
     if (newNode == NULL)
     {
         return;
@@ -73,7 +73,7 @@ char* get(HashTable* ht, int key)
     }
 
     int index = hash(key);
-    Node* current = ht->table[index];
+    Node_hash* current = ht->table[index];
 
     while (current != NULL)
     {
@@ -96,8 +96,8 @@ int removeKey(HashTable* ht, int key)
     }
 
     int index = hash(key);
-    Node* current = ht->table[index];
-    Node* previous = NULL;
+    Node_hash* current = ht->table[index];
+    Node_hash* previous = NULL;
 
     while (current != NULL)
     {
@@ -133,7 +133,7 @@ void printTable(HashTable* ht)
     for (int i = 0; i < TABLE_SIZE; ++i)
     {
         printf("Bucket %d:", i);
-        Node* current = ht->table[i];
+        Node_hash* current = ht->table[i];
         if (current == NULL)
         {
             printf(" (empty)\n");

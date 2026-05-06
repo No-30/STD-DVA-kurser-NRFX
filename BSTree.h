@@ -23,10 +23,10 @@ typedef struct treeNode* BSTree;
 BSTree create_empty_tree(void);
 
 /* Returnerar 1 ifall trädet är tomt, 0 annars */
-int is_empty(const BSTree tree);
+int is_empty_BST(const BSTree tree);
 
 /* Sätter in 'data' sorterat i *tree*/
-void insert_sorted(BSTree* tree, int data);
+void insert_sorted_BST(BSTree* tree, int data);
 
 /* Utskriftsfunktioner*/
 void print_preorder(const BSTree tree);
@@ -34,13 +34,13 @@ void print_inorder(const BSTree tree);
 void print_postorder(const BSTree tree);
 
 /* Returnerar 1 om 'data' finns i tree, 0 annars */
-int find(const BSTree tree, int data);
+int find_BST(const BSTree tree, int data);
 
 /* Tar bort 'data' från trädet om det finns */
-void remove_element(BSTree* tree, int data);
+void remove_element_BST(BSTree* tree, int data);
 
 /* Returnerar hur många noder som totalt finns i trädet */
-int number_of_nodes(const BSTree tree);
+int number_of_nodes_BST(const BSTree tree);
 
 /* Returnerar hur djupt trädet är */
 int depth(const BSTree tree);
