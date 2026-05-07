@@ -9,6 +9,7 @@
 #include <nrfx_systick.h>
 #include <nrf_gpio.h>
 
+// Globala variabler för UART, RTC, LED, knappar och tillstånd
 nrfx_uarte_t instance = NRFX_UARTE_INSTANCE(0);
 const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
 int LEDArr[LED_ARR_LENGTH] = { LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN };
@@ -25,29 +26,29 @@ int read_int()
     char charArr[STRING_LENGTH];
     int length = STRING_LENGTH;
 
-    readString(charArr, &length);
+    readString(charArr, &length);  // Läs en sträng från UART
 
-    return atoi(charArr);
+    return atoi(charArr);  // Konvertera strängen till heltal
 }
 
 void uarte_write(char* data)
 {
-    nrfx_uarte_tx(&instance, data, strlen(data), 0);
+    nrfx_uarte_tx(&instance, data, strlen(data), 0);  // Skicka data via UART
 }
 
 void readString(char charArr[], int* length)
 {
     for(int i = 0; i < *length; i++)
     {
-        nrfx_uarte_rx (&instance, &uarteBuffer, sizeof(uarteBuffer));
+        nrfx_uarte_rx (&instance, &uarteBuffer, sizeof(uarteBuffer));  // Läs ett tecken från UART
         if (uarteBuffer != '\r')
         {
-            charArr[i] = uarteBuffer;
+            charArr[i] = uarteBuffer;  // Lägg till tecknet i arrayen
         }
         else
         {
-            charArr[i] = '\0';
-            *length = i;
+            charArr[i] = '\0';  // Avsluta strängen med null-terminator
+            *length = i;  // Uppdatera längden
         }
     }
 }
@@ -55,11 +56,11 @@ void readString(char charArr[], int* length)
 void toggleLEDFromButton()
 {
     for(int i = 0; i < LED_ARR_LENGTH; i++){
-        if(!nrf_gpio_pin_read(ButtonArr[i]))
+        if(!nrf_gpio_pin_read(ButtonArr[i]))  // Om knappen är nedtryckt
         {
-            LEDState[i] = (LEDState[i] + 1) % 2;
-            nrf_gpio_pin_write(LEDArr[i], LEDState[i]);
-            while(!nrf_gpio_pin_read(ButtonArr[i]))
+            LEDState[i] = (LEDState[i] + 1) % 2;  // Växla LED-tillstånd
+            nrf_gpio_pin_write(LEDArr[i], LEDState[i]);  // Uppdatera LED
+            while(!nrf_gpio_pin_read(ButtonArr[i]))  // Vänta tills knappen släpps
             {
                 nrfx_systick_delay_ms(50);
             }
@@ -69,27 +70,26 @@ void toggleLEDFromButton()
 
 void toggleLED(int led)
 {
-    LEDState[led] = (LEDState[led] + 1) % 2;
-    nrf_gpio_pin_write(LEDArr[led], LEDState[led]);
+    LEDState[led] = (LEDState[led] + 1) % 2;  // Växla tillstånd för specifik LED
+    nrf_gpio_pin_write(LEDArr[led], LEDState[led]);  // Uppdatera LED
 }
 
 void initSystick()
 {
-    nrfx_systick_init();
+    nrfx_systick_init();  // Initiera systick för fördröjningar
 }
 
 void initRTC()
 {
     nrfx_rtc_config_t configc = NRFX_RTC_DEFAULT_CONFIG;
-    nrfx_err_t errc = nrfx_rtc_init(&rtc_instance, &configc, NULL);
-    nrfx_rtc_enable(&rtc_instance);
-    //rtcTime = nrfx_rtc_counter_get(&rtc_instance);
+    nrfx_err_t errc = nrfx_rtc_init(&rtc_instance, &configc, NULL);  // Initiera RTC med standardkonfiguration
+    nrfx_rtc_enable(&rtc_instance);  // Aktivera RTC
 }
 
 void initUART()
 {
     const nrfx_uarte_config_t configu = NRFX_UARTE_DEFAULT_CONFIG(UART_TX, UART_RX);
-    nrfx_err_t erru = nrfx_uarte_init(&instance, &configu, NULL);
+    nrfx_err_t erru = nrfx_uarte_init(&instance, &configu, NULL);  // Initiera UART med standardkonfiguration
     if (erru != 0){
         //Här kan vi implementera felhantering, men för stunden håller vi tummarna att allt funkar
     }
@@ -99,7 +99,7 @@ void confButtons()
 {
     for(int i = 0; i < BUTTON_ARR_LENGTH; i++)
     {
-        nrf_gpio_cfg_input(ButtonArr[i], NRF_GPIO_PIN_PULLUP);
+        nrf_gpio_cfg_input(ButtonArr[i], NRF_GPIO_PIN_PULLUP);  // Konfigurera knappar som ingångar med pullup
     }
 }
 
@@ -107,8 +107,8 @@ void confLEDs()
 {
     for(int i = 0; i < LED_ARR_LENGTH; i++)
     {
-        nrf_gpio_cfg_output(LEDArr[i]);
-        nrf_gpio_pin_write(LEDArr[i], LEDState[i]);
+        nrf_gpio_cfg_output(LEDArr[i]);  // Konfigurera LED som utgångar
+        nrf_gpio_pin_write(LEDArr[i], LEDState[i]);  // Sätt initialt tillstånd
     }
 }
 
@@ -117,22 +117,22 @@ void delay(int time, char unit)//case för ms s
     switch (unit)
     {
     case 's': //second
-        time *= 1000;
+        time *= 1000;  // Konvertera sekunder till millisekunder
         break;
     
     case 't': //tenth second
-        time *= 100;
+        time *= 100;  // Konvertera tiondels sekunder till millisekunder
         break;
     
     
     case 'm': //millisecond
-        time *= 1;
+        time *= 1;  // Millisekunder som är
         break;
     
     default:
         break;
     }
-    nrfx_systick_delay_ms(time);
+    nrfx_systick_delay_ms(time);  // Fördröj med angiven tid
 }
 
 void waitForButton(int button)
@@ -140,15 +140,15 @@ void waitForButton(int button)
     int whileloop = 1;
     while (whileloop)
     {
-        if (!nrf_gpio_pin_read(ButtonArr[button]))
+        if (!nrf_gpio_pin_read(ButtonArr[button]))  // Om specifik knapp är nedtryckt
         {
-            while (!nrf_gpio_pin_read(ButtonArr[button]))
+            while (!nrf_gpio_pin_read(ButtonArr[button]))  // Vänta tills knappen släpps
             {
                 delay(50, 'm');
-                whileloop = 0;
+                whileloop = 0;  // Avsluta yttre loop
             }
         }
-        delay(50, 'm');
+        delay(50, 'm');  // Kort fördröjning för att undvika busy-wait
     }
 }
 
@@ -159,13 +159,13 @@ int buttonPressed()
     {
         for (int i = 0; i < BUTTON_ARR_LENGTH; i++)
         {
-            if (!nrf_gpio_pin_read(ButtonArr[i]))
+            if (!nrf_gpio_pin_read(ButtonArr[i]))  // Om någon knapp är nedtryckt
             {
-                while (!nrf_gpio_pin_read(ButtonArr[i]))
+                while (!nrf_gpio_pin_read(ButtonArr[i]))  // Vänta tills knappen släpps
                 {
                     nrfx_systick_delay_ms(50);
                     whileloop = 0;
-                    return i;
+                    return i;  // Returnera knappens index
                 }
                 nrfx_systick_delay_ms(50);
             }
@@ -175,27 +175,27 @@ int buttonPressed()
 
 void initAll()
 {
-    confButtons();
-    initSystick();
-    initUART();
-    initRTC();
+    confButtons();  // Konfigurera knappar
+    initSystick();  // Initiera systick
+    initUART();  // Initiera UART
+    initRTC();  // Initiera RTC
     sprintf(sprintfBuffer, "\n\rPress Button 1 to start RTC\n\r");
-    uarte_write(sprintfBuffer);
-    waitForButton(BUTTON1);
+    uarte_write(sprintfBuffer);  // Uppmana användaren att trycka på knapp 1
+    waitForButton(BUTTON1);  // Vänta på knapp 1
 
-    rtcTime = nrfx_rtc_counter_get(&rtc_instance);
-    srand(rtcTime);
+    rtcTime = nrfx_rtc_counter_get(&rtc_instance);  // Hämta RTC-tid
+    srand(rtcTime);  // Initiera slumpgenerator med RTC-tid
 
-    confLEDs();
+    confLEDs();  // Konfigurera LED
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < LED_ARR_LENGTH; j++)
         {
-            toggleLED(j);
-            delay(50, 'm');
+            toggleLED(j);  // Växla varje LED
+            delay(50, 'm');  // Kort fördröjning
         }
     }
 
     sprintf(sprintfBuffer, "\n\rAll initiated\n\r");
-    uarte_write(sprintfBuffer);
+    uarte_write(sprintfBuffer);  // Bekräfta att allt är initierat
 }

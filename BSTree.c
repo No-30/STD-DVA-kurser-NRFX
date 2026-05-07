@@ -12,7 +12,7 @@
 static struct treeNode* create_tree_node(int data)
 {
     struct treeNode* node = malloc(sizeof(struct treeNode));
-    assert(node != NULL);
+    assert(node != NULL);  // Säkerställ att allokeringen lyckades
     node->data = data;
     node->left = NULL;
     node->right = NULL;
@@ -26,17 +26,20 @@ static void write_sorted_to_array_helper(const BSTree tree, int arr[], int* inde
         return;
     }
 
+    // Rekursivt besök vänster subträd
     write_sorted_to_array_helper(tree->left, arr, index);
+    // Lägg till aktuell nods data i arrayen
     arr[(*index)++] = tree->data;
+    // Rekursivt besök höger subträd
     write_sorted_to_array_helper(tree->right, arr, index);
 }
 
 /* Returnerar en dynamiskt allokerad array som innehåller trädets data sorterat */
 static int* write_sorted_to_array(const BSTree tree)
 {
-    int count = number_of_nodes(tree);
+    int count = number_of_nodes_BST(tree);  // Räkna antalet noder
     int* arr = malloc(sizeof(int) * count);
-    assert(arr != NULL || count == 0);
+    assert(arr != NULL || count == 0);  // Säkerställ allokering eller tomt träd
 
     int index = 0;
     write_sorted_to_array_helper(tree, arr, &index);
@@ -52,9 +55,11 @@ static void build_tree_sorted_from_array(BSTree* tree, const int arr[], int size
         return;
     }
 
-    int mid = size / 2;
+    int mid = size / 2;  // Välj mittenelementet som rot
     *tree = create_tree_node(arr[mid]);
+    // Bygg vänster subträd från vänstra delen
     build_tree_sorted_from_array(&(*tree)->left, arr, mid);
+    // Bygg höger subträd från högra delen
     build_tree_sorted_from_array(&(*tree)->right, arr + mid + 1, size - mid - 1);
 }
 
@@ -79,17 +84,17 @@ static void insert_sorted_helper(BSTree* tree, int data)
 {
     if (*tree == NULL)
     {
-        *tree = create_tree_node(data);
+        *tree = create_tree_node(data);  // Skapa ny nod om platsen är tom
         return;
     }
 
     if (data < (*tree)->data)
     {
-        insert_sorted_helper(&(*tree)->left, data);
+        insert_sorted_helper(&(*tree)->left, data);  // Infoga i vänster subträd
     }
     else if (data > (*tree)->data)
     {
-        insert_sorted_helper(&(*tree)->right, data);
+        insert_sorted_helper(&(*tree)->right, data);  // Infoga i höger subträd
     }
     else
     {
@@ -100,7 +105,7 @@ static void insert_sorted_helper(BSTree* tree, int data)
 /* Sätter in 'data' sorterat i *tree */
 void insert_sorted_BST(BSTree* tree, int data)
 {
-    assert(tree != NULL);
+    assert(tree != NULL);  // Säkerställ att trädet finns
     insert_sorted_helper(tree, data);
 }
 
@@ -112,13 +117,16 @@ void print_preorder(const BSTree tree)
     {
         return;
     }
+    // Besök roten först
     sprintf(sprintfBuffer, "\n\rBesöker nod:");
     //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
     uarte_write(sprintfBuffer);
+    // Sedan vänster subträd
     sprintf(sprintfBuffer, "\n\rVänster:");
     //uarte_write(sprintfBuffer);
     print_preorder(tree->left);
+    // Sedan höger subträd
     sprintf(sprintfBuffer, "\n\rHöger:");
     //uarte_write(sprintfBuffer);
     print_preorder(tree->right);
@@ -131,13 +139,16 @@ void print_inorder(const BSTree tree)
         return;
     }
 
+    // Besök vänster subträd först
     sprintf(sprintfBuffer, "\n\rVänster:");
     //uarte_write(sprintfBuffer);
     print_inorder(tree->left);
+    // Sedan roten
     sprintf(sprintfBuffer, "\n\rBesöker nod:");
     //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
     uarte_write(sprintfBuffer);
+    // Sedan höger subträd
     sprintf(sprintfBuffer, "\n\rHöger:");
     //uarte_write(sprintfBuffer);
     print_inorder(tree->right);
@@ -150,12 +161,15 @@ void print_postorder(const BSTree tree)
         return;
     }
 
+    // Besök vänster subträd först
     sprintf(sprintfBuffer, "\n\rVänster:");
     //uarte_write(sprintfBuffer);
     print_postorder(tree->left);
+    // Sedan höger subträd
     sprintf(sprintfBuffer, "\n\rHöger:");
     //uarte_write(sprintfBuffer);
     print_postorder(tree->right);
+    // Till sist roten
     sprintf(sprintfBuffer, "\n\rBesöker nod:");
     //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
@@ -176,19 +190,19 @@ int find_BST(const BSTree tree, int data)
     {
         //sprintf(sprintfBuffer, "\n\rfinns");
         //uarte_write(sprintfBuffer);
-        return 1;
+        return 1;  // Hittade datat
     }
 
     if (data < tree->data)
     {
         //sprintf(sprintfBuffer, "\n\rsöker vänster");
         //uarte_write(sprintfBuffer);
-        return find_BST(tree->left, data);
+        return find_BST(tree->left, data);  // Sök i vänster subträd
     }
 
     //sprintf(sprintfBuffer, "\n\rsöker höger");
     //uarte_write(sprintfBuffer);
-    return find_BST(tree->right, data);
+    return find_BST(tree->right, data);  // Sök i höger subträd
 }
 
 static struct treeNode* find_min_node(BSTree tree)
@@ -196,7 +210,7 @@ static struct treeNode* find_min_node(BSTree tree)
     assert(tree != NULL);
     while (tree->left != NULL)
     {
-        tree = tree->left;
+        tree = tree->left;  // Gå till vänster tills minsta noden
     }
     return tree;
 }
@@ -211,11 +225,11 @@ void remove_element_BST(BSTree* tree, int data)
 
     if (data < (*tree)->data)
     {
-        remove_element_BST(&(*tree)->left, data);
+        remove_element_BST(&(*tree)->left, data);  // Sök i vänster subträd
     }
     else if (data > (*tree)->data)
     {
-        remove_element_BST(&(*tree)->right, data);
+        remove_element_BST(&(*tree)->right, data);  // Sök i höger subträd
     }
     else
     {
@@ -223,24 +237,25 @@ void remove_element_BST(BSTree* tree, int data)
 
         if (node->left == NULL && node->right == NULL)
         {
-            free(node);
+            free(node);  // Frigör lövnod
             *tree = NULL;
         }
         else if (node->left == NULL)
         {
-            *tree = node->right;
+            *tree = node->right;  // Ersätt med höger barn
             free(node);
         }
         else if (node->right == NULL)
         {
-            *tree = node->left;
+            *tree = node->left;  // Ersätt med vänster barn
             free(node);
         }
         else
         {
+            // Två barn: hitta efterföljare
             struct treeNode* successor = find_min_node(node->right);
-            node->data = successor->data;
-            remove_element_BST(&node->right, successor->data);
+            node->data = successor->data;  // Kopiera efterföljarens data
+            remove_element_BST(&node->right, successor->data);  // Ta bort efterföljaren
         }
     }
 }
@@ -253,6 +268,7 @@ int number_of_nodes_BST(const BSTree tree)
         return 0;
     }
 
+    // Räkna roten plus vänster och höger subträd
     return 1 + number_of_nodes_BST(tree->left) + number_of_nodes_BST(tree->right);
 }
 
@@ -266,6 +282,7 @@ int depth(const BSTree tree)
 
     int left_depth = depth(tree->left);
     int right_depth = depth(tree->right);
+    // Returnera 1 plus det största djupet av subträden
     return 1 + (left_depth > right_depth ? left_depth : right_depth);
 }
 
@@ -280,21 +297,22 @@ int min_depth(const BSTree tree)
 
     if (tree->left == NULL && tree->right == NULL)
     {
-        return 1;
+        return 1;  // Löv har djup 1
     }
 
     if (tree->left == NULL)
     {
-        return 1 + min_depth(tree->right);
+        return 1 + min_depth(tree->right);  // Bara höger subträd
     }
 
     if (tree->right == NULL)
     {
-        return 1 + min_depth(tree->left);
+        return 1 + min_depth(tree->left);  // Bara vänster subträd
     }
 
     int left_min = min_depth(tree->left);
     int right_min = min_depth(tree->right);
+    // Returnera 1 plus det minsta djupet
     return 1 + (left_min < right_min ? left_min : right_min);
 }
 
@@ -306,11 +324,14 @@ void balance_tree(BSTree* tree)
         return;
     }
 
+    // Skriv ut trädet till en sorterad array
     int* arr = write_sorted_to_array(*tree);
     int count = number_of_nodes_BST(*tree);
+    // Frigör det gamla trädet
     free_tree(tree);
+    // Bygg ett nytt balanserat träd från arrayen
     build_tree_sorted_from_array(tree, arr, count);
-    free(arr);
+    free(arr);  // Frigör arrayen
 }
 
 /* Töm trädet och frigör minnet för de olika noderna */
@@ -321,9 +342,10 @@ void free_tree(BSTree* tree)
         return;
     }
 
+    // Frigör vänster och höger subträd först
     free_tree(&(*tree)->left);
     free_tree(&(*tree)->right);
-    free(*tree);
+    free(*tree);  // Frigör roten
     *tree = NULL;
 }
 
