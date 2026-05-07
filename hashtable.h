@@ -10,10 +10,11 @@ typedef struct Bucket
     char value[20];
 } Bucket;
 
-// Nod i länkad lista
+// Nod i dubbellänkad lista
 typedef struct Node_hash
 {
     Bucket data;
+    struct Node_hash* prev;
     struct Node_hash* next;
 } Node_hash;
 
