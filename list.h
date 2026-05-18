@@ -82,6 +82,6 @@ int search(const List list, const Data data);
 //Ta bort data ur listan (första förekomsten), returnera 0 om datat inte finns, annars 1
 int remove_element(List *list, const Data data);
 
-void switchNode (List *node);
+void switchNode (Node *node);
 
 #endif

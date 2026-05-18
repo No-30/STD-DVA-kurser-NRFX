@@ -1,6 +1,7 @@
 #include "array_sort.h"
 #include <stdlib.h>
 #include <stdHeader.h>
+#include <stdHeader.h>
 
 // Kontrollerar om arrayen är sorterad i stigande ordning
 // Returnerar 1 om sorterad, annars 0

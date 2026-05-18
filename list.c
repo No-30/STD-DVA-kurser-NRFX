@@ -228,34 +228,46 @@ int remove_element(List *list, const Data data)
 	return remove_element(&(*list)->next, data);//gå vidare rekursivt
 }
 
-void switchNode(List *node)
+void switchNode(Node *node)
 {
-    if (node == NULL || *node == NULL || (*node)->next == NULL)
-        return;
+	if (node == NULL || node->next == NULL)
+		return; // Inga noder att byta
 
-    Node *a = *node;          // noden som ska flyttas
-    Node *b = a->next;        // noden efter
+	Node *nextNode = node->next;
+	Node *prevNode = node->previous;
 
-    Node *prev = a->previous;
-    Node *next = b->next;
+	// Byt plats på node och nextNode
+	node->next = nextNode->next;
+	nextNode->previous = prevNode;
 
-    // Koppla ihop prev → b
-    if (prev != NULL)
-        prev->next = b;
-    b->previous = prev;
+	/*if (prevNode != NULL)
+	{
+		sprintf(sprintfBuffer, "\r\nHär2 %d %d\r\n", nextNode->data, prevNode->data);
+		uarte_write(sprintfBuffer);
+		prevNode->next = nextNode;
+	}*/
 
-    // Koppla ihop a → next
-    if (next != NULL)
-        next->previous = a;
-    a->next = next;
+	/*if (node->next != NULL)
+	{
+		node->next->previous = node;
+	}*/
 
-    // Koppla ihop b → a
-    b->next = a;
-    a->previous = b;
-
-    // Om a var första noden måste listpekaren flyttas
-    if (prev == NULL)
-        *node = b;
-    else
-        *node = b;
+	nextNode->next = node;
+	node->previous = nextNode;
 }
+
+void swapNodes(Node* i, Node* j)
+{
+    if(i->previous)  i->previous->next = j;
+    if(j->previous)  j->previous->next = i;
+    if(i->next) i->next->previous= j;
+    if(j->next) j->next->previous= i;
+    Node* temp;
+    temp = i->previous;
+    i->previous = j->previous;    
+    j->previous = temp;
+    temp = i->next;
+    i->next= j->next;    
+    j->next= temp;
+}
+

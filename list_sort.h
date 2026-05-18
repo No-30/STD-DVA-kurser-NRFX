@@ -3,11 +3,11 @@
 
 #include <list.h>
 
-int is_sorted(const Node *list);
+int is_sorted_list(const Node *list);
 
-void bogo_sort(Node *list);
-void bubble_sort(Node **list);
-void stalin_sort(Node *list);
+//void bogo_sort(Node *list);
+void bubble_sort_list(Node *list);
+/*void stalin_sort(Node *list);
 void insertion_sort(Node *list);
 void selection_sort(Node *list);
 void merge_sort(Node **list);
@@ -29,6 +29,6 @@ void bitonic_sort(Node *list);
 void pancake_sort(Node *list);
 void sleep_sort(Node *list);
 void tree_sort(Node *list);
-void communist_sort(Node *list);
+void communist_sort(Node *list);*/
 
 #endif // LIST_SORT_H

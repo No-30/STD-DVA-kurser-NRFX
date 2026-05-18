@@ -1,7 +1,8 @@
 #include <list.h>
 #include <list_sort.h>
+#include <stdHeader.h>
 
-int is_sorted(const Node *list)
+int is_sorted_list(const Node *list)
 {
     if (list == NULL || list->next == NULL)
         return 1; // En tom lista eller en lista med en nod är sorterad
@@ -9,47 +10,51 @@ int is_sorted(const Node *list)
     if (list->data > list->next->data)
         return 0; // Om nuvarande nod är större än nästa, är listan inte sorterad
 
-    return is_sorted(list->next); // Kontrollera resten av listan
+    return is_sorted_list(list->next); // Kontrollera resten av listan
 }
 
-void bogo_sort(Node *list)
+/*void bogo_sort(Node *list)
 {
-    while (!is_sorted(list))
+    while (!is_sorted_list(list))
     {
         // Shuffle the list
         //use rand();
     }
-}
+}*/
 
-void bubble_sort(Node **list)
+void bubble_sort_list(Node *list)
 {
-    if (list == NULL || *list == NULL)
+    if (list == NULL || list->next == NULL)
     {
         return;
     }
 
-    int swapped;
-    do
+    if(is_sorted_list(list))
     {
-        swapped = 0;
-        Node **current_ref = list;
+        return;
+    }
 
-        while ((*current_ref)->next != NULL)
+    Node *current = list;
+    print_list(current);
+    while (current->next != NULL)
+    {
+        if (current->data > current->next->data)
         {
-            if ((*current_ref)->data > (*current_ref)->next->data)
+            switchNode(&current); // Byt plats på current och current->next
+            // Efter att ha bytt plats, måste vi gå tillbaka en nod för att kontrollera ordningen
+            if (current->previous != NULL)
             {
-                switchNode((List *)current_ref);
-                swapped = 1;
-            }
-            else
-            {
-                current_ref = &(*current_ref)->next;
+                current = current->previous;
             }
         }
-    } while (swapped);
+        else
+        {
+            current = current->next; // Gå vidare till nästa nod
+        }
+    }
 }
 
-void stalin_sort(Node *list)
+/*void stalin_sort(Node *list)
 {
     // Implement stalin sort for linked list
 }
@@ -162,4 +167,4 @@ void tree_sort(Node *list)
 void communist_sort(Node *list)
 {
     // Implement communist sort for linked list
-}
+}*/
