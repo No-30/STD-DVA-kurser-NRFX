@@ -21,9 +21,32 @@ void bogo_sort(Node *list)
     }
 }
 
-void bubble_sort(Node *list)
+void bubble_sort(Node **list)
 {
-    // Implement bubble sort for linked list
+    if (list == NULL || *list == NULL)
+    {
+        return;
+    }
+
+    int swapped;
+    do
+    {
+        swapped = 0;
+        Node **current_ref = list;
+
+        while ((*current_ref)->next != NULL)
+        {
+            if ((*current_ref)->data > (*current_ref)->next->data)
+            {
+                switchNode((List *)current_ref);
+                swapped = 1;
+            }
+            else
+            {
+                current_ref = &(*current_ref)->next;
+            }
+        }
+    } while (swapped);
 }
 
 void stalin_sort(Node *list)
