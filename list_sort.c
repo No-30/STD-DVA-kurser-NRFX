@@ -22,37 +22,46 @@ int is_sorted_list(const Node *list)
     }
 }*/
 
-void bubble_sort_list(Node *list)
+Node* bubble_sort_list(Node *head)
 {
-    if (list == NULL || list->next == NULL)
-    {
-        return;
-    }
+    if (head == NULL || head->next == NULL)
+        return head;
 
-    if(is_sorted_list(list))
-    {
-        return;
-    }
+    int swapped;
 
-    Node *current = list;
-    print_list(current);
-    while (current->next != NULL)
-    {
-        if (current->data > current->next->data)
+    do {
+        swapped = 0;
+        Node *current = head;
+
+        while (current->next != NULL)
         {
-            switchNode(&current); // Byt plats på current och current->next
-            // Efter att ha bytt plats, måste vi gå tillbaka en nod för att kontrollera ordningen
-            if (current->previous != NULL)
+            if (current->data > current->next->data)
             {
-                current = current->previous;
+                Node *old = current;
+
+                // swap old with old->next
+                Node *newNode = switchNode(current);
+
+                // If we swapped at the head, update head
+                if (newNode->previous == NULL)
+                    head = newNode;
+
+                swapped = 1;
+
+                // After swap, old moved backward
+                current = old;
+            }
+            else
+            {
+                current = current->next;
             }
         }
-        else
-        {
-            current = current->next; // Gå vidare till nästa nod
-        }
-    }
+
+    } while (swapped);
+
+    return head;
 }
+
 
 /*void stalin_sort(Node *list)
 {

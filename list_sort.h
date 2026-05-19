@@ -6,7 +6,7 @@
 int is_sorted_list(const Node *list);
 
 //void bogo_sort(Node *list);
-void bubble_sort_list(Node *list);
+Node* bubble_sort_list(Node *head);
 /*void stalin_sort(Node *list);
 void insertion_sort(Node *list);
 void selection_sort(Node *list);

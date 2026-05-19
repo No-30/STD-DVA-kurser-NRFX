@@ -228,46 +228,25 @@ int remove_element(List *list, const Data data)
 	return remove_element(&(*list)->next, data);//gå vidare rekursivt
 }
 
-void switchNode(Node *node)
+Node* switchNode(Node *node)
 {
-	if (node == NULL || node->next == NULL)
-		return; // Inga noder att byta
+    if (node == NULL || node->next == NULL)
+        return node;
 
-	Node *nextNode = node->next;
-	Node *prevNode = node->previous;
+    Node *nextNode = node->next;
+    Node *prevNode = node->previous;
 
-	// Byt plats på node och nextNode
-	node->next = nextNode->next;
-	nextNode->previous = prevNode;
+    node->next = nextNode->next;
+    nextNode->previous = prevNode;
 
-	/*if (prevNode != NULL)
-	{
-		sprintf(sprintfBuffer, "\r\nHär2 %d %d\r\n", nextNode->data, prevNode->data);
-		uarte_write(sprintfBuffer);
-		prevNode->next = nextNode;
-	}*/
+    if (prevNode != NULL)
+        prevNode->next = nextNode;
 
-	/*if (node->next != NULL)
-	{
-		node->next->previous = node;
-	}*/
+    if (node->next != NULL)
+        node->next->previous = node;
 
-	nextNode->next = node;
-	node->previous = nextNode;
+    nextNode->next = node;
+    node->previous = nextNode;
+
+    return nextNode;
 }
-
-void swapNodes(Node* i, Node* j)
-{
-    if(i->previous)  i->previous->next = j;
-    if(j->previous)  j->previous->next = i;
-    if(i->next) i->next->previous= j;
-    if(j->next) j->next->previous= i;
-    Node* temp;
-    temp = i->previous;
-    i->previous = j->previous;    
-    j->previous = temp;
-    temp = i->next;
-    i->next= j->next;    
-    j->next= temp;
-}
-
