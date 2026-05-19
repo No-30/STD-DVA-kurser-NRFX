@@ -5,10 +5,7 @@
 
 // Kontrollerar om arrayen är sorterad i stigande ordning
 // Returnerar 1 om sorterad, annars 0
-int is_sorted(const int *array) {
-    // OBS! Detta fungerar bara om arrayens storlek är känd i denna funktion,
-    // annars kommer sizeof(array) bara ge storleken på pekaren.
-    int size = sizeof(array) / sizeof(array[0]);
+int is_sorted(const int *array, int size) {
     for (int i = 1; i < size; i++) {
         if (array[i] < array[i - 1]) {
             return 0; // Inte sorterad
@@ -19,10 +16,9 @@ int is_sorted(const int *array) {
 
 // Utför bogo sort (slumpmässig sortering tills arrayen är sorterad)
 // Extremt ineffektiv sorteringsalgoritm, används mest som skämt
-void bogo_sort(int *array) {
-    while (!is_sorted(array)) {
+void bogo_sort(int *array, int size) {
+    while (!is_sorted(array, size)) {
         // Blandar arrayen slumpmässigt
-        int size = sizeof(array) / sizeof(array[0]);
         for (int i = 0; i < size; i++) {
             int j = rand() % size; // Välj slumpmässigt index
             // Byt plats på array[i] och array[j]
@@ -35,8 +31,7 @@ void bogo_sort(int *array) {
 
 // Utför bubble sort (bubblar upp största värdet varje varv)
 // Jämför intilliggande element och byter plats om de är i fel ordning
-void bubble_sort(int *array) {
-    int size = sizeof(array) / sizeof(array[0]);
+void bubble_sort(int *array, int size) {
     for (int i = 0; i < size - 1; i++) {
         for (int j = 0; j < size - i - 1; j++) {
             if (array[j] > array[j + 1]) {
@@ -51,8 +46,7 @@ void bubble_sort(int *array) {
 
 // Utför stalin sort (tar bort element som bryter den stigande ordningen)
 // Endast de element som är i ordning får vara kvar
-void stalin_sort(int *array) {
-    int size = sizeof(array) / sizeof(array[0]);
+void stalin_sort(int *array, int size) {
     int *sorted_array = (int *)malloc(size * sizeof(int)); // Temporär array
     int index = 0;
     sorted_array[index++] = array[0]; // Första elementet är alltid kvar
@@ -70,8 +64,7 @@ void stalin_sort(int *array) {
 
 // Utför insertion sort (infogar varje element på rätt plats)
 // Flyttar varje element bakåt tills det hamnar rätt
-void insertion_sort(int *array) {
-    int size = sizeof(array) / sizeof(array[0]);
+void insertion_sort(int *array, int size) {
     for (int i = 1; i < size; i++) {
         int key = array[i];
         int j = i - 1;
@@ -86,8 +79,7 @@ void insertion_sort(int *array) {
 
 // Utför selection sort (hittar minsta elementet och byter plats)
 // Går igenom arrayen och letar efter minsta elementet för varje position
-void selection_sort(int *array) {
-    int size = sizeof(array) / sizeof(array[0]);
+void selection_sort(int *array, int size) {
     for (int i = 0; i < size - 1; i++) {
         int min_index = i;
         for (int j = i + 1; j < size; j++) {
@@ -104,62 +96,39 @@ void selection_sort(int *array) {
 
 // Hjälpfunktion för att slå ihop två sorterade delmängder (merge sort)
 // Används av merge sort för att kombinera två sorterade delar till en
-static void merge(int *array, int left, int mid, int right) {
-    int left_size = mid - left + 1;
-    int right_size = right - mid;
-    int *left_array = (int *)malloc(left_size * sizeof(int));
-    int *right_array = (int *)malloc(right_size * sizeof(int));
-
-    // Kopiera data till temporära arrayer
-    for (int i = 0; i < left_size; i++) 
-        left_array[i] = array[left + i];
-    
-    for (int j = 0; j < right_size; j++) 
-        right_array[j] = array[mid + 1 + j];
-    
-
-    int i = 0;
-    int j = 0;
+static void merge(int *array, int *temp, int left, int mid, int right) {
+    int i = left;
+    int j = mid + 1;
     int k = left;
-    // Slå ihop arrayerna tillbaka till originalet
-    while (i < left_size && j < right_size) {
-        if (left_array[i] <= right_array[j]) {
-            array[k++] = left_array[i++];
-        } else {
-            array[k++] = right_array[j++];
-        }
-    }
-    // Kopiera eventuella återstående element
-    while (i < left_size) 
-        array[k++] = left_array[i++];
-    
-    while (j < right_size) 
-        array[k++] = right_array[j++];
-    
 
-    free(left_array);
-    free(right_array);
+    while (i <= mid && j <= right) {
+        temp[k++] = (array[i] <= array[j]) ? array[i++] : array[j++];
+    }
+    while (i <= mid) temp[k++] = array[i++];
+    while (j <= right) temp[k++] = array[j++];
+
+    for (int x = left; x <= right; x++) {
+        array[x] = temp[x];
+    }
 }
 
 // Rekursiv funktion för merge sort
 // Delar upp arrayen i mindre delar och slår ihop dem sorterat
-static void merge_sort_recursive(int *array, int left, int right) {
-    if (left < right) {
-        int mid = left + (right - left) / 2;
-        merge_sort_recursive(array, left, mid);
-        merge_sort_recursive(array, mid + 1, right);
-        merge(array, left, mid, right);
-    }
+static void merge_sort_recursive(int *array, int *temp, int left, int right) {
+    if (left >= right) return;
+
+    int mid = left + (right - left) / 2;
+    merge_sort_recursive(array, temp, left, mid);
+    merge_sort_recursive(array, temp, mid + 1, right);
+    merge(array, temp, left, mid, right);
 }
 
 // Utför merge sort (delar upp och slår ihop sorterat)
 // Startar den rekursiva sorteringen
-void merge_sort(int *array) {
-    int size = sizeof(array) / sizeof(array[0]);
-    if (size <= 1) {
-        return;
-    }
-    merge_sort_recursive(array, 0, size - 1);
+void merge_sort(int *array, int size) {
+    int *temp = malloc(size * sizeof(int));
+    merge_sort_recursive(array, temp, 0, size - 1);
+    free(temp);
 }
 
 // Hjälpfunktion för partitionering (quick sort)
@@ -195,8 +164,7 @@ static void quick_sort_recursive(int *array, int low, int high) {
 
 // Utför quick sort (delar upp kring pivot)
 // Startar den rekursiva sorteringen
-void quick_sort(int *array) {
-    int size = sizeof(array) / sizeof(array[0]);
+void quick_sort(int *array, int size) {
     if (size <= 1) {
         return;
     }
@@ -205,74 +173,74 @@ void quick_sort(int *array) {
 
 // Nedan följer tomma funktioner för olika sorteringsalgoritmer
 // Dessa är bara mallar och saknar implementation
-void heap_sort(int *array) {
+void heap_sort(int *array, int size) {
     // Implementation av heap sort
 }
 
-void cocktail_sort(int *array) {
+void cocktail_sort(int *array, int size) {
     // Implementation av cocktail sort
 }
 
-void gnome_sort(int *array) {
+void gnome_sort(int *array, int size) {
     // Implementation av gnome sort
 }
 
-void comb_sort(int *array) {
+void comb_sort(int *array, int size) {
     // Implementation av comb sort
 }
 
-void pigeonhole_sort(int *array) {
+void pigeonhole_sort(int *array, int size) {
     // Implementation av pigeonhole sort
 }
 
-void cycle_sort(int *array) {
+void cycle_sort(int *array, int size) {
     // Implementation av cycle sort
 }
 
-void tim_sort(int *array) {
+void tim_sort(int *array, int size) {
     // Implementation av tim sort
 }
 
-void radix_sort(int *array) {
+void radix_sort(int *array, int size) {
     // Implementation av radix sort
 }
 
-void bucket_sort(int *array) {
+void bucket_sort(int *array, int size) {
     // Implementation av bucket sort
 }
 
-void shell_sort(int *array) {
+void shell_sort(int *array, int size) {
     // Implementation av shell sort
 }
 
-void counting_sort(int *array) {
+void counting_sort(int *array, int size) {
     // Implementation av counting sort
 }
 
-void flash_sort(int *array) {
+void flash_sort(int *array, int size) {
     // Implementation av flash sort
 }
 
-void strand_sort(int *array) {
+void strand_sort(int *array, int size) {
     // Implementation av strand sort
 }
 
-void bitonic_sort(int *array) {
+void bitonic_sort(int *array, int size) {
     // Implementation av bitonic sort
 }
 
-void pancake_sort(int *array) {
+void pancake_sort(int *array, int size) {
     // Implementation av pancake sort
 }
 
-void sleep_sort(int *array) {
+void sleep_sort(int *array, int size) {
     // Implementation av sleep sort
 }
 
-void tree_sort(int *array) {
-    // Implementation av tree
+void tree_sort(int *array, int size) {
+    // Implementation av tree sort
 }
 
-void communist_sort(int *array) {
+void communist_sort(int *array, int size) {
     // Implementation av communist sort
 }
