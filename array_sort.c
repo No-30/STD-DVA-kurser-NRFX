@@ -102,7 +102,7 @@ static void merge(int *array, int *temp, int left, int mid, int right) {
     int k = left;
 
     while (i <= mid && j <= right) {
-        temp[k++] = (array[i] <= array[j]) ? array[i++] : array[j++];
+        temp[k++] = (array[i] <= array[j]) ? array[i++] : array[j++];//if (<=) then i++ else j++
     }
     while (i <= mid) temp[k++] = array[i++];
     while (j <= right) temp[k++] = array[j++];
@@ -115,7 +115,7 @@ static void merge(int *array, int *temp, int left, int mid, int right) {
 // Rekursiv funktion för merge sort
 // Delar upp arrayen i mindre delar och slår ihop dem sorterat
 static void merge_sort_recursive(int *array, int *temp, int left, int right) {
-    if (left >= right) return;
+    if (left >= right) return;//>= storleksordning <= inverterad storleksordning
 
     int mid = left + (right - left) / 2;
     merge_sort_recursive(array, temp, left, mid);
@@ -136,7 +136,7 @@ void merge_sort(int *array, int size) {
 static int partition(int *array, int low, int high) {
     int pivot = array[high]; // Välj sista elementet som pivot
     int i = low - 1;
-    for (int j = low; j < high; j++) {
+    for (int j = low; j < high; j++) {//int j = low; j < high; j++
         if (array[j] <= pivot) {
             i++;
             // Byt plats på array[i] och array[j]
@@ -155,7 +155,7 @@ static int partition(int *array, int low, int high) {
 // Rekursiv funktion för quick sort
 // Sorterar delarna före och efter pivot
 static void quick_sort_recursive(int *array, int low, int high) {
-    if (low < high) {
+    if (low < high) {//< storleksordning > inverterad storleksordning
         int pivot_index = partition(array, low, high);
         quick_sort_recursive(array, low, pivot_index - 1);
         quick_sort_recursive(array, pivot_index + 1, high);

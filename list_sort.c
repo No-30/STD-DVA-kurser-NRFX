@@ -35,7 +35,7 @@ Node* bubble_sort_list(Node *head)
 
         while (current->next != NULL)
         {
-            if (current->data > current->next->data)
+            if (current->data < current->next->data)//> storleksordning < inverterad storleksordning
             {
                 Node *old = current;
 
