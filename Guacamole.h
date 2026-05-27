@@ -43,6 +43,9 @@
 #define ARR_LENGTH 4
 #define STRING_LENGTH 300
 
+#include <nrfx_gpiote.h>
+#include <nrf_gpiote.h>
+
 /* --- Color & Strings --- */
 #define CLEAR_SCREEN "\033[2J\033[H"
 #define COLOR_RED    "\033[31m"
@@ -68,6 +71,7 @@ void uarte_write(char* data);
 void toggleLEDFromButton(void);
 void toggleLED(int led);
 void game(int alive);
+void gpio_button_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action);
 int timeLit(int hits);
 float boost(int hits, int* lives);
 void status(int score, int hits, int lives);
@@ -77,8 +81,7 @@ void initUART(void);
 void confButtons(void);
 void confLEDs(void);
 void delay(int time, char unit);
-int buttonPressed(void);
-void waitForButton(int button);
+int timedButtonPress(int timeout_ms);
 void initAll_Mod(void);
 
 
