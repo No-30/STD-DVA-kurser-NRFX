@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <nrfx_gpiote.h>
 #include <nrf_gpiote.h>
+#include <math.h>
 
 
 nrfx_uarte_t instance = NRFX_UARTE_INSTANCE(0);
@@ -18,6 +19,9 @@ const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
 int LEDArr[ARR_LENGTH] = { LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN };
 int ButtonArr[ARR_LENGTH] = { BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN, BUTTON4_PIN };
 int LEDState[ARR_LENGTH] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
+int lives = 5;
+int hits = 0;
+int score = 0;
 
 char uarteBuffer;
 char sprintfBuffer[STRING_LENGTH];
@@ -26,6 +30,9 @@ int rtcTime;
 
 volatile int lastButtonPressed = -1;
 volatile bool buttonEventFlag = false;
+volatile bool hitsEvent = false;
+volatile bool livesEvent = false;
+
 
 void uarte_write(char* data)
 {
@@ -55,44 +62,59 @@ void toggleLED(int led)
 
 void game(int alive) 
 {
-    int lives = 5;
-    float score = 0;
+
     float booster;
-    int lit, rngNum;
-    int hits = 0;
+    int lit, rngNum, rngTime;
+    int counter = 0;
+    int waittime;
 
     while (alive)
     {
         booster = boost(hits, &lives);
         lit = timeLit(hits);
 
+        if(counter < 60)
+            waittime = cos((float)counter/40.0)*1000;
+        else
+            waittime = 60;
         rngNum = rand() % 4;
+        rngTime = rand() % waittime*1/4 + waittime*3/4;
+        
+        /*sprintf(sprintfBuffer, "\n\rCounter %d, waittime %d", counter, waittime);
+        uarte_write(sprintfBuffer);*/
+
         nrf_gpio_pin_write(LEDArr[rngNum], LED_ON);
+        counter++;
 
         int buttonId = timedButtonPress(lit);
 
         // CASE 1: Correct button
         if (buttonId == rngNum)
         {
-            score += (int)(10 * booster);
             hits++;
+            hitsEvent = true; 
+            score += (int)(10 * booster);
+
         }
         // CASE 2: Wrong button
         else if (buttonId != -1 && buttonId != rngNum)
         {
             lives--;
+            livesEvent = true;
         }
         // CASE 3: No button pressed in time
         else if (buttonId == -1)
         {
             lives--;
+            livesEvent = true;
         }
 
         nrf_gpio_pin_write(LEDArr[rngNum], LED_OFF);
-        status(score, hits, lives);
 
         if (lives <= 0)
             alive = 0;
+
+        delay(rngTime, 'm');
     }
 }
 
@@ -106,6 +128,24 @@ void gpio_button_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
             buttonEventFlag = true;
             break;
         }
+    }
+}
+
+void rtc_handler(nrfx_rtc_int_type_t type)
+{
+    if (type == NRFX_RTC_INT_COMPARE0)
+    {
+        uarte_write("\n\r[RTC] interrupt fired\n\r");  // debug
+
+        if (hitsEvent || livesEvent)
+        {
+            status(score, hits, lives);
+            hitsEvent = false;
+            livesEvent = false;
+        }
+
+        uint32_t now = nrfx_rtc_counter_get(&rtc_instance);
+        nrfx_rtc_cc_set(&rtc_instance, 0, now + 32, true);
     }
 }
 
@@ -152,10 +192,19 @@ void initSystick()
 
 void initRTC()
 {
-    nrfx_rtc_config_t configc = NRFX_RTC_DEFAULT_CONFIG;
-    nrfx_err_t errc = nrfx_rtc_init(&rtc_instance, &configc, NULL);  // Initiera RTC med standardkonfiguration
-    nrfx_rtc_enable(&rtc_instance);  // Aktivera RTC
+    nrfx_rtc_config_t config = NRFX_RTC_DEFAULT_CONFIG;
+
+    nrfx_err_t err = nrfx_rtc_init(&rtc_instance, &config, rtc_handler);
+
+    NVIC_EnableIRQ(RTC0_IRQn);
+
+    uint32_t now = nrfx_rtc_counter_get(&rtc_instance);
+    nrfx_rtc_cc_set(&rtc_instance, 0, now + 32, true);
+
+    nrfx_rtc_enable(&rtc_instance);
 }
+
+
 
 void initUART()
 {

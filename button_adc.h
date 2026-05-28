@@ -1,4 +1,4 @@
-#ifndef BUTTON_ADC_H
+/*#ifndef BUTTON_ADC_H
 #define BUTTON_ADC_H
 
 #include <stdint.h>
@@ -30,4 +30,4 @@ int button_adc_get(void);
 // Non-blocking version (returns -1 if no button)
 int button_adc_peek(void);
 
-#endif
+#endif*/

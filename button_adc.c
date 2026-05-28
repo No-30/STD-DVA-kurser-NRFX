@@ -1,4 +1,4 @@
-#include "button_adc.h"
+/*#include "button_adc.h"
 #include <nrfx_saadc.h>
 #include <nrfx_gpiote.h>
 #include <nrf_gpio.h>
@@ -117,4 +117,4 @@ int button_adc_peek(void)
     int b = last_button;
     last_button = -1;
     return b;
-}
+} */

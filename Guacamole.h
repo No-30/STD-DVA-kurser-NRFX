@@ -1,5 +1,6 @@
 #ifndef STD_HEADER_H
 #define STD_HEADER_H
+#define BUTTON_PIN 4
 #define BUTTON1_PIN 23
 #define BUTTON2_PIN 24
 #define BUTTON3_PIN 8
@@ -22,11 +23,15 @@
 #define LED2_PIN 29
 #define LED3_PIN 30
 #define LED4_PIN 31
-#define LED5_PIN
-#define LED6_PIN
-#define LED7_PIN
-#define LED8_PIN
-#define LED9_PIN
+// #define LED1_PIN 100
+// #define LED2_PIN 101
+// #define LED3_PIN 104
+// #define LED4_PIN 105
+// #define LED5_PIN 106
+// #define LED6_PIN 107
+// #define LED7_PIN 108
+// #define LED8_PIN 109
+// #define LED9_PIN 110
 #define LED1 0
 #define LED2 1
 #define LED3 2
@@ -45,6 +50,7 @@
 
 #include <nrfx_gpiote.h>
 #include <nrf_gpiote.h>
+#include <nrfx_rtc.h>
 
 /* --- Color & Strings --- */
 #define CLEAR_SCREEN "\033[2J\033[H"
@@ -72,6 +78,7 @@ void toggleLEDFromButton(void);
 void toggleLED(int led);
 void game(int alive);
 void gpio_button_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action);
+void rtc_handler(nrfx_rtc_int_type_t type);
 int timeLit(int hits);
 float boost(int hits, int* lives);
 void status(int score, int hits, int lives);
