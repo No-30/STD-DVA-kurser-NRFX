@@ -29,6 +29,14 @@ Node* bubble_sort_list(Node *head)
 
     int swapped;
 
+    // int num = number_of_nodes(head);
+    // for(int i = 0; i < num / 2; i++)
+    // {
+    //     head = head->next;
+    // }
+    // sprintf(sprintfBuffer, "\n\rHalva: ");
+    // uarte_write(sprintfBuffer);
+
     do {
         swapped = 0;
         Node *current = head;
@@ -58,6 +66,12 @@ Node* bubble_sort_list(Node *head)
         }
 
     } while (swapped);
+
+    // while(head->previous != NULL)
+    // {
+    //     head = head->previous;
+    // }
+    // print_list(head);
 
     return head;
 }

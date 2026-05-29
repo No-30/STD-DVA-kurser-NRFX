@@ -115,12 +115,12 @@ static void merge(int *array, int *temp, int left, int mid, int right) {
 // Rekursiv funktion för merge sort
 // Delar upp arrayen i mindre delar och slår ihop dem sorterat
 static void merge_sort_recursive(int *array, int *temp, int left, int right) {
-    if (left >= right) return;//>= storleksordning <= inverterad storleksordning
+    if (left <= right) return;//>= storleksordning <= inverterad storleksordning
 
     int mid = left + (right - left) / 2;
     merge_sort_recursive(array, temp, left, mid);
     merge_sort_recursive(array, temp, mid + 1, right);
-    merge(array, temp, left, mid, right);
+    merge(array, temp, right, mid, left);
 }
 
 // Utför merge sort (delar upp och slår ihop sorterat)
@@ -168,7 +168,7 @@ void quick_sort(int *array, int size) {
     if (size <= 1) {
         return;
     }
-    quick_sort_recursive(array, 0, size - 1);
+    quick_sort_recursive(array, 0, size - 1);// hela array, 0, size - 1; halva size / 2
 }
 
 // Nedan följer tomma funktioner för olika sorteringsalgoritmer

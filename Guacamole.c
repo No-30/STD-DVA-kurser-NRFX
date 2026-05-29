@@ -39,26 +39,26 @@ void uarte_write(char* data)
     nrfx_uarte_tx(&instance, data, strlen(data), 0);  // Skicka data via UART
 }
 
-void toggleLEDFromButton()
-{
-    for(int i = 0; i < ARR_LENGTH; i++){
-        if(!nrf_gpio_pin_read(ButtonArr[i]))  // Om knappen är nedtryckt
-        {
-            LEDState[i] = (LEDState[i] + 1) % 2;  // Växla LED-tillstånd
-            nrf_gpio_pin_write(LEDArr[i], LEDState[i]);  // Uppdatera LED
-            while(!nrf_gpio_pin_read(ButtonArr[i]))  // Vänta tills knappen släpps
-            {
-                nrfx_systick_delay_ms(50);
-            }
-        }
-    }
-}
+// void toggleLEDFromButton()
+// {
+//     for(int i = 0; i < ARR_LENGTH; i++){
+//         if(!nrf_gpio_pin_read(ButtonArr[i]))  // Om knappen är nedtryckt
+//         {
+//             LEDState[i] = (LEDState[i] + 1) % 2;  // Växla LED-tillstånd
+//             nrf_gpio_pin_write(LEDArr[i], LEDState[i]);  // Uppdatera LED
+//             while(!nrf_gpio_pin_read(ButtonArr[i]))  // Vänta tills knappen släpps
+//             {
+//                 nrfx_systick_delay_ms(50);
+//             }
+//         }
+//     }
+// }
 
-void toggleLED(int led)
-{
-    LEDState[led] = (LEDState[led] + 1) % 2;  // Växla tillstånd för specifik LED
-    nrf_gpio_pin_write(LEDArr[led], LEDState[led]);  // Uppdatera LED
-}
+// void toggleLED(int led)
+// {
+//     LEDState[led] = (LEDState[led] + 1) % 2;  // Växla tillstånd för specifik LED
+//     nrf_gpio_pin_write(LEDArr[led], LEDState[led]);  // Uppdatera LED
+// }
 
 void game(int alive) 
 {
@@ -67,10 +67,11 @@ void game(int alive)
     int lit, rngNum, rngTime;
     int counter = 0;
     int waittime;
+    int consHit = 0;
 
     while (alive)
     {
-        booster = boost(hits, &lives);
+        booster = boost(consHit, &lives);
         lit = timeLit(hits);
 
         if(counter < 60)
@@ -92,6 +93,7 @@ void game(int alive)
         if (buttonId == rngNum)
         {
             hits++;
+            consHit++;
             hitsEvent = true; 
             score += (int)(10 * booster);
 
@@ -101,12 +103,16 @@ void game(int alive)
         {
             lives--;
             livesEvent = true;
+            consHit = 0;
+            booster = 1;
         }
         // CASE 3: No button pressed in time
         else if (buttonId == -1)
         {
             lives--;
             livesEvent = true;
+            consHit = 0;
+            booster = 1;
         }
 
         nrf_gpio_pin_write(LEDArr[rngNum], LED_OFF);
@@ -118,18 +124,18 @@ void game(int alive)
     }
 }
 
-void gpio_button_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
-{
-    for (int i = 0; i < ARR_LENGTH; i++)
-    {
-        if (pin == ButtonArr[i])
-        {
-            lastButtonPressed = i;
-            buttonEventFlag = true;
-            break;
-        }
-    }
-}
+// void gpio_button_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+// {
+//     for (int i = 0; i < ARR_LENGTH; i++)
+//     {
+//         if (pin == ButtonArr[i])
+//         {
+//             lastButtonPressed = i;
+//             buttonEventFlag = true;
+//             break;
+//         }
+//     }
+// }
 
 void rtc_handler(nrfx_rtc_int_type_t type)
 {
@@ -279,6 +285,23 @@ int timedButtonPress(int timeout_ms)
     return -1;  // no button pressed
 }
 
+void waitForButton(int button)
+{
+    int whileloop = 1;
+    while (whileloop)
+    {
+        if (!nrf_gpio_pin_read(ButtonArr[button]))  // Om specifik knapp är nedtryckt
+        {
+            while (!nrf_gpio_pin_read(ButtonArr[button]))  // Vänta tills knappen släpps
+            {
+                delay(50, 'm');
+                whileloop = 0;  // Avsluta yttre loop
+            }
+        }
+        delay(50, 'm');  // Kort fördröjning för att undvika busy-wait
+    }
+}
+
 void initAll_Mod()
 {
     confButtons();
@@ -292,6 +315,11 @@ void initAll_Mod()
         " Avoid pressing non glowing buttons to avoid losing lives\n\r"
         "=============================================================="COLOR_RESET);
     uarte_write(string);
+    
+    sprintf(sprintfBuffer, "\n\rPress button 1 to start");
+    uarte_write(sprintfBuffer);
+
+    waitForButton(BUTTON1);
 
     rtcTime = nrfx_rtc_counter_get(&rtc_instance);
     srand(rtcTime);
