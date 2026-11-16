@@ -1,5 +1,8 @@
 #ifndef STD_HEADER_H
 #define STD_HEADER_H
+
+#include <stdio.h>
+
 #define LED1_PIN 28
 #define LED2_PIN 29
 #define LED3_PIN 30
@@ -16,8 +19,10 @@
 #define BUTTON2 1
 #define BUTTON3 2
 #define BUTTON4 3
-#define UART_TX 20
-#define UART_RX 22
+#define UART0_TX 20
+#define UART0_RX 22
+#define UART1_TX 36
+#define UART1_RX 37
 #define LED_ARR_LENGTH 4
 #define BUTTON_ARR_LENGTH 4
 #define LED_ON 0
@@ -33,8 +38,8 @@ extern char string[STRING_LENGTH];
 extern int rtcTime;
 
 int read_int();
-void uarte_write(char* data);
-void readString(char charArr[], int* length);
+void uarte_write(char* data, int uart);
+void readString(char charArr[], int* length, int uart);
 void toggleLEDFromButton();
 void toggleLED(int led);
 void initSystick();

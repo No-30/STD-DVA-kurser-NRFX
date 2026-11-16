@@ -157,7 +157,7 @@ void print_list(const List list)
 		return;
 	
 	sprintf(sprintfBuffer, "\n\r%d", list->data);
-	uarte_write(sprintfBuffer);	
+	uarte_write(sprintfBuffer, 0);
 		
 	print_list(list->next);
 }

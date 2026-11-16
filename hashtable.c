@@ -156,14 +156,14 @@ void printTable(HashTable* ht)
     {
         // Skriv ut bucket-numret
         sprintf(sprintfBuffer, "\n\rBucket %d:", i);
-        uarte_write(sprintfBuffer);
+        uarte_write(sprintfBuffer, 0);
         Node_hash* current = ht->table[i];
         
         // Om bucket är tom, skriv ut "(empty)"
         if (current == NULL)
         {
             sprintf(sprintfBuffer, " (empty)\n\r");
-            uarte_write(sprintfBuffer);
+            uarte_write(sprintfBuffer, 0);
             continue;  // Gå vidare till nästa bucket
         }
 
@@ -171,11 +171,11 @@ void printTable(HashTable* ht)
         while (current != NULL)
         {
             sprintf(sprintfBuffer, "\n\r [key=%d, value=%s]", current->data.key, current->data.value);
-            uarte_write(sprintfBuffer);
+            uarte_write(sprintfBuffer, 0);
             current = current->next;
         }
         // Avsluta bucket med en ny rad
         sprintf(sprintfBuffer, "\n\r");
-        uarte_write(sprintfBuffer);
+        uarte_write(sprintfBuffer, 0);
     }
 }

@@ -121,7 +121,7 @@ void print_preorder(const BSTree tree)
     sprintf(sprintfBuffer, "\n\rBesöker nod:");
     //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
-    uarte_write(sprintfBuffer);
+    uarte_write(sprintfBuffer, 0);
     // Sedan vänster subträd
     sprintf(sprintfBuffer, "\n\rVänster:");
     //uarte_write(sprintfBuffer);
@@ -147,7 +147,7 @@ void print_inorder(const BSTree tree)
     sprintf(sprintfBuffer, "\n\rBesöker nod:");
     //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
-    uarte_write(sprintfBuffer);
+    uarte_write(sprintfBuffer, 0);
     // Sedan höger subträd
     sprintf(sprintfBuffer, "\n\rHöger:");
     //uarte_write(sprintfBuffer);
@@ -173,7 +173,7 @@ void print_postorder(const BSTree tree)
     sprintf(sprintfBuffer, "\n\rBesöker nod:");
     //uarte_write(sprintfBuffer);
     sprintf(sprintfBuffer, "\n\r%d", tree->data);
-    uarte_write(sprintfBuffer);
+    uarte_write(sprintfBuffer, 0);
 }
 
 /* Returnerar 1 om 'data' finns i tree, 0 annars */
