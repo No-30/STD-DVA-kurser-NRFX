@@ -18,6 +18,7 @@ const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
 int LEDArr[LED_ARR_LENGTH] = { LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN };
 int ButtonArr[BUTTON_ARR_LENGTH] = { BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN, BUTTON4_PIN };
 int LEDState[LED_ARR_LENGTH] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
+volatile bool bufferFull = false;
 
 char uarteBuffer;
 char sprintfBuffer[STRING_LENGTH];
@@ -208,6 +209,26 @@ int buttonPressed()
         }
     }
     return -1;
+}
+
+void rtc_handler(nrfx_rtc_int_type_t type)
+{
+    if (type == NRFX_RTC_INT_COMPARE0)
+    {
+        //uarte_write("\n\r[RTC] interrupt fired\n\r");  // Debugutskrift
+
+        // Om poäng eller liv har ändrats, skriv ut status via UART
+        if (bufferFull)
+        {
+            //uarte_write("\n\r[RTC] Buffer full event\n\r");  // Debugutskrift
+            readString(string, &rtcTime, 0);  // Läs sträng från UART0
+            bufferFull = false;  // Återställ flaggan
+        }
+
+        // Ställ in nästa jämförelseintervall (32 ticks framåt)
+        uint32_t now = nrfx_rtc_counter_get(&rtc_instance);
+        nrfx_rtc_cc_set(&rtc_instance, 0, now + 32, true);
+    }
 }
 
 void initAll()
