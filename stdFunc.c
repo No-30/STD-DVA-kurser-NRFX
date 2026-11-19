@@ -14,7 +14,8 @@
 // Globala variabler för UART, RTC, LED, knappar och tillstånd
 nrfx_uarte_t instance0 = NRFX_UARTE_INSTANCE(0);
 nrfx_uarte_t instance1 = NRFX_UARTE_INSTANCE(1);
-const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
+const nrfx_rtc_t rtc_instance1 = NRFX_RTC_INSTANCE(0);
+const nrfx_rtc_t rtc_instance0 = NRFX_RTC_INSTANCE(1);
 int LEDArr[LED_ARR_LENGTH] = { LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN };
 int ButtonArr[BUTTON_ARR_LENGTH] = { BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN, BUTTON4_PIN };
 int LEDState[LED_ARR_LENGTH] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
@@ -52,6 +53,25 @@ void uarte_write(char* data, int uart) //instance måste vara 1 eller 0 annars R
     nrfx_uarte_tx(instance, (uint8_t const *)data, strlen(data), 0);  // Skicka data via UART
 }
 
+void rtc_handler(nrfx_rtc_int_type_t type)
+{
+    if (type == NRFX_RTC_INT_COMPARE0)
+    {
+        //uarte_write("\n\r[RTC] interrupt fired\n\r");  // Debugutskrift
+
+        if (bufferFull)
+        {
+            //uarte_write("\n\r[RTC] Buffer full event\n\r");  // Debugutskrift
+            readString(string, &rtcTime, 0);  // Läs sträng från UART0
+            bufferFull = false;  // Återställ flaggan
+        }
+
+        // Ställ in nästa jämförelseintervall (32 ticks framåt)
+        uint32_t now = nrfx_rtc_counter_get(&rtc_instance0);
+        nrfx_rtc_cc_set(&rtc_instance0, 0, now + 32, true);
+    }
+}
+
 void readString(char charArr[], int* length, int uart)//instance måste vara 1 eller 0 annars Rico-moment
 {
     nrfx_uarte_t const * instance = NULL;  // Standardinstans för UART
@@ -74,7 +94,11 @@ void readString(char charArr[], int* length, int uart)//instance måste vara 1 e
         uarteBuffer = (char)received;
         if (uarteBuffer != '\r')
         {
-            charArr[i] = uarteBuffer;  // Lägg till tecknet i arrayen
+            charArr[i] = uarteBuffer; // Lägg till tecknet i arrayen
+            if(uarteBuffer != NULL)
+            {
+                bufferFull = true;  // Markera att bufferten är full
+            }  
         }
         else
         {
@@ -113,9 +137,12 @@ void initSystick()
 
 void initRTC()
 {
-    nrfx_rtc_config_t configc = NRFX_RTC_DEFAULT_CONFIG;
-    nrfx_err_t errc = nrfx_rtc_init(&rtc_instance, &configc, NULL);  // Initiera RTC med standardkonfiguration
-    nrfx_rtc_enable(&rtc_instance);  // Aktivera RTC
+    nrfx_rtc_config_t configc0 = NRFX_RTC_DEFAULT_CONFIG;
+    nrfx_rtc_config_t configc1 = NRFX_RTC_DEFAULT_CONFIG;
+    nrfx_err_t errc0 = nrfx_rtc_init(&rtc_instance0, &configc0, rtc_handler);  // Initiera RTC med standardkonfiguration
+    nrfx_err_t errc1 = nrfx_rtc_init(&rtc_instance1, &configc1, rtc_handler);  // Initiera RTC med standardkonfiguration
+    nrfx_rtc_enable(&rtc_instance0);  // Aktivera RTC
+    nrfx_rtc_enable(&rtc_instance1);  // Aktivera RTC
 }
 
 void initUART()
@@ -211,25 +238,6 @@ int buttonPressed()
     return -1;
 }
 
-void rtc_handler(nrfx_rtc_int_type_t type)
-{
-    if (type == NRFX_RTC_INT_COMPARE0)
-    {
-        //uarte_write("\n\r[RTC] interrupt fired\n\r");  // Debugutskrift
-
-        // Om poäng eller liv har ändrats, skriv ut status via UART
-        if (bufferFull)
-        {
-            //uarte_write("\n\r[RTC] Buffer full event\n\r");  // Debugutskrift
-            readString(string, &rtcTime, 0);  // Läs sträng från UART0
-            bufferFull = false;  // Återställ flaggan
-        }
-
-        // Ställ in nästa jämförelseintervall (32 ticks framåt)
-        uint32_t now = nrfx_rtc_counter_get(&rtc_instance);
-        nrfx_rtc_cc_set(&rtc_instance, 0, now + 32, true);
-    }
-}
 
 void initAll()
 {
@@ -241,7 +249,7 @@ void initAll()
     uarte_write(sprintfBuffer, 0);  // Uppmana användaren att trycka på knapp 1
     waitForButton(BUTTON1);  // Vänta på knapp 1
 
-    rtcTime = nrfx_rtc_counter_get(&rtc_instance);  // Hämta RTC-tid
+    rtcTime = nrfx_rtc_counter_get(&rtc_instance0);  // Hämta RTC-tid
     srand(rtcTime);  // Initiera slumpgenerator med RTC-tid
 
     confLEDs();  // Konfigurera LED

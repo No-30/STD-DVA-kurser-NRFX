@@ -39,6 +39,7 @@ extern int rtcTime;
 
 int read_int();
 void uarte_write(char* data, int uart);
+void rtc_handler(nrfx_rtc_int_type_t type);
 void readString(char charArr[], int* length, int uart);
 void toggleLEDFromButton();
 void toggleLED(int led);
