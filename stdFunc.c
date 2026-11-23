@@ -14,8 +14,8 @@
 // Globala variabler för UART, RTC, LED, knappar och tillstånd
 nrfx_uarte_t instance0 = NRFX_UARTE_INSTANCE(0);
 nrfx_uarte_t instance1 = NRFX_UARTE_INSTANCE(1);
-const nrfx_rtc_t rtc_instance1 = NRFX_RTC_INSTANCE(0);
-const nrfx_rtc_t rtc_instance0 = NRFX_RTC_INSTANCE(1);
+const nrfx_uarte_t uarte_instance = NRFX_UARTE_INSTANCE(1);
+const nrfx_rtc_t rtc_instance = NRFX_RTC_INSTANCE(0);
 int LEDArr[LED_ARR_LENGTH] = { LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN };
 int ButtonArr[BUTTON_ARR_LENGTH] = { BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN, BUTTON4_PIN };
 int LEDState[LED_ARR_LENGTH] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
@@ -25,6 +25,14 @@ char uarteBuffer;
 char sprintfBuffer[STRING_LENGTH];
 char string[STRING_LENGTH];
 int rtcTime;
+volatile char uarteKey;
+volatile bool uarteKeyReady = false;
+volatile char uarte0Byte;
+volatile bool uarte0ByteReady = false;
+volatile char uarte1Byte;
+volatile bool uarte1ByteReady = false;
+static uint8_t rxByte0;
+static uint8_t rxByte1;
 
 int read_int()
 {
@@ -53,23 +61,44 @@ void uarte_write(char* data, int uart) //instance måste vara 1 eller 0 annars R
     nrfx_uarte_tx(instance, (uint8_t const *)data, strlen(data), 0);  // Skicka data via UART
 }
 
-void rtc_handler(nrfx_rtc_int_type_t type)
+void uarte_pi_read(char* data, int length)
 {
-    if (type == NRFX_RTC_INT_COMPARE0)
+    nrfx_uarte_t const * instance = &instance1;  // Använd UART1 för läsning
+    nrfx_uarte_rx(instance, (uint8_t *)data, length);  // Läs data från UART
+
+}
+
+void uarte0_handler(nrfx_uarte_event_t const *p_event, void *p_context)
+{
+    (void)p_context;
+
+    if (p_event->type == NRFX_UARTE_EVT_RX_DONE)
     {
-        //uarte_write("\n\r[RTC] interrupt fired\n\r");  // Debugutskrift
-
-        if (bufferFull)
-        {
-            //uarte_write("\n\r[RTC] Buffer full event\n\r");  // Debugutskrift
-            readString(string, &rtcTime, 0);  // Läs sträng från UART0
-            bufferFull = false;  // Återställ flaggan
-        }
-
-        // Ställ in nästa jämförelseintervall (32 ticks framåt)
-        uint32_t now = nrfx_rtc_counter_get(&rtc_instance0);
-        nrfx_rtc_cc_set(&rtc_instance0, 0, now + 32, true);
+        uarte0Byte = (char)rxByte0;
+        uarte0ByteReady = true;
+        nrfx_uarte_rx(&instance0, &rxByte0, 1);
     }
+}
+
+void uarte1_handler(nrfx_uarte_event_t const *p_event, void *p_context)
+{
+    (void)p_context;
+
+    if (p_event->type == NRFX_UARTE_EVT_RX_DONE)
+    {
+        uarte1Byte = (char)rxByte1;
+        uarte1ByteReady = true;
+        nrfx_uarte_rx(&instance1, &rxByte1, 1);
+    }
+}
+
+void interrupts(void)
+{
+    NVIC_ClearPendingIRQ(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(0)));
+    NVIC_EnableIRQ(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(0)));
+
+    NVIC_ClearPendingIRQ(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(1)));
+    NVIC_EnableIRQ(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(1)));
 }
 
 void readString(char charArr[], int* length, int uart)//instance måste vara 1 eller 0 annars Rico-moment
@@ -95,10 +124,7 @@ void readString(char charArr[], int* length, int uart)//instance måste vara 1 e
         if (uarteBuffer != '\r')
         {
             charArr[i] = uarteBuffer; // Lägg till tecknet i arrayen
-            if(uarteBuffer != NULL)
-            {
-                bufferFull = true;  // Markera att bufferten är full
-            }  
+            bufferFull = true;
         }
         else
         {
@@ -137,26 +163,28 @@ void initSystick()
 
 void initRTC()
 {
-    nrfx_rtc_config_t configc0 = NRFX_RTC_DEFAULT_CONFIG;
-    nrfx_rtc_config_t configc1 = NRFX_RTC_DEFAULT_CONFIG;
-    nrfx_err_t errc0 = nrfx_rtc_init(&rtc_instance0, &configc0, rtc_handler);  // Initiera RTC med standardkonfiguration
-    nrfx_err_t errc1 = nrfx_rtc_init(&rtc_instance1, &configc1, rtc_handler);  // Initiera RTC med standardkonfiguration
-    nrfx_rtc_enable(&rtc_instance0);  // Aktivera RTC
-    nrfx_rtc_enable(&rtc_instance1);  // Aktivera RTC
+    nrfx_rtc_config_t config = NRFX_RTC_DEFAULT_CONFIG;
+    nrfx_rtc_init(&rtc_instance, &config, NULL);
+    nrfx_rtc_enable(&rtc_instance);
 }
 
 void initUART()
 {
     const nrfx_uarte_config_t configu0 = NRFX_UARTE_DEFAULT_CONFIG(UART0_TX, UART0_RX);
-    nrfx_err_t erru0 = nrfx_uarte_init(&instance0, &configu0, NULL);  // Initiera UART med standardkonfiguration
-    if (erru0 != 0){
-        //Här kan vi implementera felhantering, men för stunden håller vi tummarna att allt funkar
+    nrfx_err_t erru0 = nrfx_uarte_init(&instance0, &configu0, uarte0_handler);
+    if (erru0 == NRFX_SUCCESS)
+    {
+        nrfx_uarte_rx(&instance0, &rxByte0, 1);
     }
+
     const nrfx_uarte_config_t configu1 = NRFX_UARTE_DEFAULT_CONFIG(UART1_TX, UART1_RX);
-    nrfx_err_t erru1 = nrfx_uarte_init(&instance1, &configu1, NULL);  // Initiera UART med standardkonfiguration
-    if (erru1 != 0){
-        //Här kan vi implementera felhantering, men för stunden håller vi tummarna att allt funkar
+    nrfx_err_t erru1 = nrfx_uarte_init(&instance1, &configu1, uarte1_handler);
+    if (erru1 == NRFX_SUCCESS)
+    {
+        nrfx_uarte_rx(&instance1, &rxByte1, 1);
     }
+
+    interrupts();
 }
 
 void confButtons()
@@ -241,18 +269,19 @@ int buttonPressed()
 
 void initAll()
 {
-    confButtons();  // Konfigurera knappar
-    initSystick();  // Initiera systick
-    initUART();  // Initiera UART
-    initRTC();  // Initiera RTC
+    confButtons();
+    initSystick();
+    initUART();
+    initRTC();
+
     sprintf(sprintfBuffer, "\n\rPress Button 1 to start RTC\n\r");
     uarte_write(sprintfBuffer, 0);  // Uppmana användaren att trycka på knapp 1
     waitForButton(BUTTON1);  // Vänta på knapp 1
 
-    rtcTime = nrfx_rtc_counter_get(&rtc_instance0);  // Hämta RTC-tid
-    srand(rtcTime);  // Initiera slumpgenerator med RTC-tid
+    rtcTime = nrfx_rtc_counter_get(&rtc_instance);
+    srand(rtcTime);
 
-    confLEDs();  // Konfigurera LED
+    confLEDs();
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < LED_ARR_LENGTH; j++)
@@ -262,6 +291,7 @@ void initAll()
         }
     }
 
-    sprintf(sprintfBuffer, "\n\rAll initiated\n\r");
-    uarte_write(sprintfBuffer, 0);  // Bekräfta att allt är initierat
+    sprintf(sprintfBuffer, "\n\rAll initiated\r\n");
+    uarte_write(sprintfBuffer, 0);
+    while (nrfx_uarte_tx_in_progress(&instance0)) {}
 }
