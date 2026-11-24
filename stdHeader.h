@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <nrfx_rtc.h>
 #include <nrfx_uarte.h>
-#include <interruptGrid.h>
 
 #define LED1_PIN 28
 #define LED2_PIN 29
@@ -24,13 +23,15 @@
 #define BUTTON4 3
 #define UART0_TX 20
 #define UART0_RX 22
-#define UART1_TX 36 //P1.04
+#define UART1_TX 36 //P1.04 närmast skärmkontakten
+#define BBUART_TX 38 //P1.06 närmast skärmkontakten
 #define UART1_RX 37 //P1.05
 #define LED_ARR_LENGTH 4
 #define BUTTON_ARR_LENGTH 4
 #define LED_ON 0
 #define LED_OFF 1
 #define STRING_LENGTH 100
+#define BAUDRATE 115200
 
 extern int LEDArr[LED_ARR_LENGTH];
 extern int ButtonArr[BUTTON_ARR_LENGTH];
@@ -50,6 +51,7 @@ extern volatile bool uarte1ByteReady;
 
 int read_int();
 void uarte_write(char* data, int uart);
+void uart_bb_tx(uint32_t pin, uint8_t data, float baudrate);
 void uarte_pi_read(char* data, int length);
 void uarte0_handler(nrfx_uarte_event_t const *p_event, void *p_context);
 void uarte1_handler(nrfx_uarte_event_t const *p_event, void *p_context);

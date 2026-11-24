@@ -10,6 +10,7 @@
 #include <nrfx_rtc.h>
 #include <nrfx_systick.h>
 #include <nrf_gpio.h>
+#include <dwt.h>
 
 // Globala variabler för UART, RTC, LED, knappar och tillstånd
 nrfx_uarte_t instance0 = NRFX_UARTE_INSTANCE(0);
@@ -59,6 +60,46 @@ void uarte_write(char* data, int uart) //instance måste vara 1 eller 0 annars R
             return;
     }
     nrfx_uarte_tx(instance, (uint8_t const *)data, strlen(data), 0);  // Skicka data via UART
+}
+
+void uart_bb_tx(uint32_t pin, uint8_t data, float baudrate)
+{
+
+    uint32_t cycles_per_bit = (uint32_t)((SystemCoreClock / baudrate) + 0.5f);
+    if (cycles_per_bit == 0)
+    {
+        return;
+    }
+
+    nrf_gpio_cfg_output(pin);
+    nrf_gpio_pin_write(pin, 1); // Idle level
+
+    uint32_t target = dwt_get_cycle() + cycles_per_bit;
+
+    // Startbit
+    nrf_gpio_pin_write(pin, 0);
+    dwt_delay_until_cycle(target);
+
+    // Data (LSB first)
+    for (uint32_t i = 0; i < 8; i++)
+    {
+        if ((data & (uint8_t)(1U << i)) != 0)
+        {
+            nrf_gpio_pin_write(pin, 1);
+        }
+        else
+        {
+            nrf_gpio_pin_write(pin, 0);
+        }
+
+        target += cycles_per_bit;
+        dwt_delay_until_cycle(target);
+    }
+
+    // Stopbit
+    nrf_gpio_pin_write(pin, 1);
+    target += cycles_per_bit;
+    dwt_delay_until_cycle(target);
 }
 
 void uarte_pi_read(char* data, int length)
@@ -273,6 +314,9 @@ void initAll()
     initSystick();
     initUART();
     initRTC();
+    dwt_init();  // Initiera DWT för cykelräkning
+    nrf_gpio_cfg_output(BBUART_TX);
+    nrf_gpio_pin_write(BBUART_TX, 1);  // Sätt BBUART TX hög
 
     sprintf(sprintfBuffer, "\n\rPress Button 1 to start RTC\n\r");
     uarte_write(sprintfBuffer, 0);  // Uppmana användaren att trycka på knapp 1
